@@ -115,7 +115,7 @@ def main():
     parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("ET_dir", type=str, help="ALEXI ET directory")
     parser.add_argument("LC_dir", type=str, help="Landcover directory")
-    parser.add_argument("cloud", type=int, help="cloud cover %")
+    parser.add_argument("cloud", type=int, help="cloud cover")
     args = parser.parse_args()
     loc = [args.lat,args.lon] 
     isUSA = args.isUSA
