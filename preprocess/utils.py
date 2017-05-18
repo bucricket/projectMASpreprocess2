@@ -12,6 +12,7 @@ import numpy as np
 import glob
 from osgeo import gdal,osr
 import pandas as pd
+from numba import jit
 
 def folders(base):
     inputDataBase = os.path.join(os.sep,'data','data123','chain','GETD_FINAL')
@@ -158,6 +159,28 @@ def clean(directory,fileString):
         file.remove()
         print "Removed {} file".format(file)
  
+@jit(['float64[:,:](float64[:,:],float64,float64)'])  
+def interpOverpassHour(dataset,overpassTime,hours=24.):
+    numPixs = dataset.shape[1]
+    stack = np.empty([1,numPixs])
+    stack[:]=np.nan
+    
+    #stackReshp = np.reshape(stack,[24,600*1440])
+    for j in xrange(numPixs):
+        y = dataset[:,j]
+        if np.sum(y)==0:
+            stack[:,j]=0.0
+        else:
+            x = range(0,int(hours),int(hours/dataset.shape[0]))
+            newX = xrange(int(hours))
+            newX = overpassTime
+            
+            #f = interp1d(x,y, kind='cubic')
+            stack[:,j]=np.interp(newX,x,y)
+        #stack[:,i]=f(newX)
+    
+    return stack
+
 # helper function
 def _test_outside(testx, lower, upper):
     """
