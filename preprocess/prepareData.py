@@ -10,6 +10,7 @@ import keyring
 import getpass
 import argparse
 import glob
+import pycurl
 from .utils import folders
 from .processData import ALEXI,MET,Landsat
 from .landsatTools import landsat_metadata
@@ -160,7 +161,11 @@ def main():
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
 
     
-    
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyboardInterrupt, pycurl.error):
+        exit('Received Ctrl + C... Exiting! Bye.', 1)  
     
     
     
