@@ -12,7 +12,7 @@ except ImportError:
     from distutils.core import setup
     setup_kwargs = {'scripts': ['bin/preprocess']}
     
-from preparepydisalexi import __version__
+from preprocess import __version__
 
 
 #=============setup the python scripts============================
