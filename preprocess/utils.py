@@ -13,6 +13,7 @@ import glob
 from osgeo import gdal,osr
 import pandas as pd
 from numba import jit
+import urllib2, base64
 
 def folders(base):
     inputDataBase = os.path.join(os.sep,'data','data123','chain','GETD_FINAL')
