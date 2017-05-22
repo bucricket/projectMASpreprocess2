@@ -117,6 +117,14 @@ def getParFromExcel(data,landsatLC,classification,varName):
         else:
             outVarArray[LCdata == eval('row.%s' % 'Class')]=eval('row.%s' % varName)
     return outVarArray
+
+def convertBin2tif(inFile,inUL,shape,res):
+    inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    outFormat = gdal.GDT_Float32
+    read_data = np.fromfile(inFile, dtype=np.float32)
+    dataset = np.flipud(read_data.reshape([shape[0],shape[1]]))
+    outTif = inFile[:-4]+".tif"
+    writeArray2Tiff(dataset,res,inUL,inProj4,outTif,outFormat) 
     
 def km2deg(x,y,lat):
     
@@ -196,3 +204,25 @@ def _test_outside(testx, lower, upper):
 class RasterError(Exception):
     """Custom exception for errors during raster processing in Pygaarst"""
     pass
+
+class earthDataHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
+    
+
+def getHTTPdata(url,outFN,auth=None):
+    request = urllib2.Request(url) 
+    if not (auth == None):
+        username = auth[0]
+        password = auth[1]
+        base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string) 
+    
+    cookieprocessor = urllib2.HTTPCookieProcessor()
+    opener = urllib2.build_opener(earthDataHTTPRedirectHandler, cookieprocessor)
+    urllib2.install_opener(opener) 
+    r = opener.open(request)
+    result = r.read()
+    
+    with open(outFN, 'wb') as f:
+        f.write(result)
