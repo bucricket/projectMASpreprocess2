@@ -146,6 +146,12 @@ def main():
         
     session = (earth_user, earth_pass)
     collection = 1
+    #===process met,alexi and misc landsat data================================
+    print("processing MET,ALEXI and misc landsat data ...")
+    landsatTemp = os.path.join(landsatSR,'temp')
+    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
+    for fn in fileList:
+        prepare_data(fn,session,isUSA,LC_dir,ET_dir)
     #===process Landsat LAI====================================================
     print("processing LAI...")
     processlai.get_LAI(collection, loc, start_date,end_date,usgs_user,
@@ -153,12 +159,7 @@ def main():
     #===process Landsat LST====================================================
     print("processing LST...")
     processlst.get_lst(earth_user,earth_pass)
-    #===process met,alexi and misc landsat data================================
-    print("processing MET,ALEXI and misc landsat data ...")
-    landsatTemp = os.path.join(landsatSR,'temp')
-    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
-    for fn in fileList:
-        prepare_data(fn,session,isUSA,LC_dir,ET_dir)
+
 
     
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
 from pydap.client import open_url
 from pydap.cas import urs
-from pydap import client
+#from pydap import client
 import pygrib
 import zipfile
 
@@ -28,7 +28,7 @@ class Landsat(object):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
-        self.inputDataBase = Folders['inputDataBase']
+#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.albedoBase = Folders['albedoBase']
@@ -140,7 +140,7 @@ class ALEXI:
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
-        self.inputDataBase = Folders['inputDataBase']
+#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.ALEXIbase = Folders['ALEXIbase']
@@ -243,7 +243,7 @@ class MET:
         Folders = folders(base)    
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
-        self.inputDataBase = Folders['inputDataBase']
+#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.metBase = Folders['metBase']
@@ -272,47 +272,47 @@ class MET:
         self.day = d.day
         self.hr = d.hour #UTC
         
-    def getMetData(self):
-        
-        # set Met dataset geo info
-        CFSR_ulLat = 90.25
-        CFSR_ulLon = -180.25
-        CFSRLatRes = 0.25
-        CFSRLonRes = 0.25
-        inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-
-        dailyPath = os.path.join(self.metBase,'%s' % self.yeardoy)
-        dailyInputPath = os.path.join(self.inputDataBase,'output%s' % self.year,'%s' % self.yeardoy)
-        if not os.path.exists(dailyPath):
-            os.makedirs(dailyPath)
-        
-        fileNames = ['psfc_series.bin.gz','q2_series.bin.gz','t2_series.bin.gz','wind_surface.bin.gz']    
-        outNames = ['p','q2','u']
-        inRes = [CFSRLonRes,CFSRLatRes]
-        inUL = [CFSR_ulLon,CFSR_ulLat]
-        for i in xrange(len(outNames)):
-            outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,outNames[i]))
-            if os.path.exists(outfile):
-                print ' ' 
-            else:
-                print 'processing : %s...' % outfile
-                gzipFile=os.path.join(dailyPath,fileNames[i])
-                shutil.copyfile(os.path.join(dailyInputPath,fileNames[i]),gzipFile)
-                out = subprocess.check_output('gzip -df %s' % gzipFile, shell=True)
-                
-                read_data = np.fromfile(os.path.join(dailyPath,fileNames[i][:-3]), dtype=np.float32)
-                dataset = np.reshape(read_data.reshape([8,600,1440]),[8,600*1440])
-        
-                dataSET = interpOverpassHour(dataset,self.hr)
-                dataset2 = np.flipud(dataSET.reshape(600,1440))
-                outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,outNames[i]))
-                outFormat = gdal.GDT_Float32
-                writeArray2Tiff(dataset2,inRes,inUL,inProj4,outfile,outFormat)
-                subsetFile = outfile[:-5]+'Sub.tiff'
-                optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
-                '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
-                warp(optionList)
+#    def getMetData(self):
+#        
+#        # set Met dataset geo info
+#        CFSR_ulLat = 90.25
+#        CFSR_ulLon = -180.25
+#        CFSRLatRes = 0.25
+#        CFSRLonRes = 0.25
+#        inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+#
+#        dailyPath = os.path.join(self.metBase,'%s' % self.yeardoy)
+#        dailyInputPath = os.path.join(self.inputDataBase,'output%s' % self.year,'%s' % self.yeardoy)
+#        if not os.path.exists(dailyPath):
+#            os.makedirs(dailyPath)
+#        
+#        fileNames = ['psfc_series.bin.gz','q2_series.bin.gz','t2_series.bin.gz','wind_surface.bin.gz']    
+#        outNames = ['p','q2','u']
+#        inRes = [CFSRLonRes,CFSRLatRes]
+#        inUL = [CFSR_ulLon,CFSR_ulLat]
+#        for i in xrange(len(outNames)):
+#            outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,outNames[i]))
+#            if os.path.exists(outfile):
+#                print ' ' 
+#            else:
+#                print 'processing : %s...' % outfile
+#                gzipFile=os.path.join(dailyPath,fileNames[i])
+#                shutil.copyfile(os.path.join(dailyInputPath,fileNames[i]),gzipFile)
+#                out = subprocess.check_output('gzip -df %s' % gzipFile, shell=True)
+#                
+#                read_data = np.fromfile(os.path.join(dailyPath,fileNames[i][:-3]), dtype=np.float32)
+#                dataset = np.reshape(read_data.reshape([8,600,1440]),[8,600*1440])
+#        
+#                dataSET = interpOverpassHour(dataset,self.hr)
+#                dataset2 = np.flipud(dataSET.reshape(600,1440))
+#                outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,outNames[i]))
+#                outFormat = gdal.GDT_Float32
+#                writeArray2Tiff(dataset2,inRes,inUL,inProj4,outfile,outFormat)
+#                subsetFile = outfile[:-5]+'Sub.tiff'
+#                optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
+#                '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
+#                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+#                warp(optionList)
                 
     def getCFSR(self):
         
