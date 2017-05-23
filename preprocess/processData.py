@@ -64,7 +64,8 @@ class Landsat(object):
             self.inProj4 = '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
         else:
             LCtemp = os.path.join(self.landsatLC,"temp")
-            os.mkdir(LCtemp)
+            if not os.path.exists(LCtemp):
+                os.mkdir(LCtemp)
                                  
             #get UTM info
             utmZone= []
