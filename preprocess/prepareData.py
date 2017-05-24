@@ -20,7 +20,6 @@ from processlst import processlst
 
 #===set golbal paths===========================================================
 base = os.getcwd()
-
 Folders = folders(base)  
 ALEXIbase = Folders['ALEXIbase']
 metBase = Folders['metBase']
@@ -46,14 +45,14 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
                'ALEXIshape': ALEXIshape}
 
         
-    #-------------pick Landcover map----------------
+    #=====pick Landcover map===================================================
     if isUSA ==1:
         landcover = 'NLCD'
     else:
         landcover = 'GlobeLand30'
 
     
-    #===========================get the ETd data==============================    
+    #=====prepare the ETd data=================================================    
     sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
     
     outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
@@ -64,7 +63,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a = ALEXI(fn,ETpath)
         a.getALEXIdata(ALEXIgeodict,isUSA)
     
-    #=====prepare MET data================================================    
+    #=====prepare MET data=====================================================    
     sceneDir = os.path.join(metBase,'%s' % scene)
     
     outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
@@ -75,17 +74,15 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a = MET(fn,session)
         a.getCFSR()
     
-    #====prepare insolation=========================================
+    #====prepare insolation====================================================
     outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
     if not os.path.exists(outFN):
         if not os.path.exists(sceneDir):
             os.makedirs(sceneDir)
         a = MET(fn,session)
         a.getInsolation()
-
     
-    #=====prepare biophysical parameters at overpass time============
-
+    #=====prepare biophysical parameters at overpass time======================
     sceneDir = os.path.join(landsatDataBase,'albedo',scene)
     outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
     if not os.path.exists(outFN):
@@ -104,8 +101,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a = Landsat(fn,LCpath)
         a.getLC(landcover)
 
-def main():
-    
+def main():    
     # Get time and location from user
     parser = argparse.ArgumentParser()
     parser.add_argument("lat", type=float, help="latitude")
@@ -124,10 +120,8 @@ def main():
     ET_dir = args.ET_dir
     LC_dir = args.LC_dir
     cloud = args.cloud
-
-
-    #%%        
-     # =====earthData credentials===============
+      
+     # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
     if keyring.get_password("nasa",earth_user)==None:
         earth_pass = str(getpass.getpass(prompt="earth login password:"))
@@ -135,7 +129,7 @@ def main():
     else:
         earth_pass = str(keyring.get_password("nasa",earth_user)) 
         
-    # =====USGS credentials===============
+    # =====USGS credentials====================================================
      # need to get this from pop up
     usgs_user = str(getpass.getpass(prompt="usgs username:"))
     if keyring.get_password("usgs",usgs_user)==None:
@@ -152,15 +146,15 @@ def main():
     fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
     for fn in fileList:
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
+        
     #===process Landsat LAI====================================================
     print("processing LAI...")
     processlai.get_LAI(collection, loc, start_date,end_date,usgs_user,
                        usgs_pass,earth_user,earth_pass,cloud)
+    
     #===process Landsat LST====================================================
     print("processing LST...")
     processlst.get_lst(earth_user,earth_pass)
-
-
     
 if __name__ == "__main__":
     try:

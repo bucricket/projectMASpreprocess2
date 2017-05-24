@@ -12,13 +12,12 @@ import subprocess
 import numpy as np
 import utm
 import shutil
-from .utils import writeArray2Tiff,warp,interpOverpassHour,folders,convertBin2tif
+from .utils import writeArray2Tiff,warp,folders,convertBin2tif
 from .utils import getHTTPdata
 from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
 from pydap.client import open_url
 from pydap.cas import urs
-#from pydap import client
 import pygrib
 import zipfile
 
@@ -28,7 +27,6 @@ class Landsat(object):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
-#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.albedoBase = Folders['albedoBase']
@@ -141,7 +139,6 @@ class ALEXI:
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
-#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.ALEXIbase = Folders['ALEXIbase']
@@ -190,7 +187,6 @@ class ALEXI:
         if not os.path.exists(outfile):
             print 'processing : %s...' % outfile
             subsetFile = outfile[:-5]+'Sub.tiff'
-            outFormat = gdal.GDT_Float32
             #********THIS SECTION IS A TEMPERARY FIX
             corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
                        [self.lrLat,self.lrLon],[self.lrLat,self.ulLon]]
@@ -244,7 +240,6 @@ class MET:
         Folders = folders(base)    
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
-#        self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.metBase = Folders['metBase']
@@ -344,7 +339,6 @@ class MET:
         #----write out global dataset to gTiff--------
         
         outfile = os.path.join(dailyPath,'%s_u.tiff' % (self.sceneID))
-        #outfile = 'u05NCDC.tif'
         outFormat = gdal.GDT_Float32
         writeArray2Tiff(flipped.astype(float),inRes,inUL,inProj4,outfile,outFormat)
         
