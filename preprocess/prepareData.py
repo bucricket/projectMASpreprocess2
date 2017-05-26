@@ -112,6 +112,7 @@ def main():
     parser.add_argument("ET_dir", type=str, help="ALEXI ET directory")
     parser.add_argument("LC_dir", type=str, help="Landcover directory")
     parser.add_argument("cloud", type=int, help="cloud cover")
+    parser.add_argument("collection", type=int,nargs='?', default=1)
     args = parser.parse_args()
     loc = [args.lat,args.lon] 
     isUSA = args.isUSA
@@ -139,7 +140,7 @@ def main():
         usgs_pass = str(keyring.get_password("usgs",usgs_user)) 
         
     session = (earth_user, earth_pass)
-    collection = 1
+#    collection = 1
     #===process met,alexi and misc landsat data================================
     print("processing MET,ALEXI and misc landsat data ...")
     landsatTemp = os.path.join(landsatSR,'temp')
