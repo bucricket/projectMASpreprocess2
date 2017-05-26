@@ -33,7 +33,8 @@ class Landsat(object):
         self.inputLC = inputLC
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
-        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.productID = filepath.split(os.sep)[-1][:-8]
+#        self.productID = meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
@@ -144,7 +145,8 @@ class ALEXI:
         self.ALEXIbase = Folders['ALEXIbase']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
-        self.productID = meta.LANDSAT_PRODUCT_ID
+#        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
@@ -245,7 +247,8 @@ class MET:
         self.metBase = Folders['metBase']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
-        self.productID = meta.LANDSAT_PRODUCT_ID
+#        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
