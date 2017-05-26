@@ -210,7 +210,11 @@ class ALEXI:
                                       'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 if not os.path.exists(os.path.join(ETtemp,localETpath)):
-                    os.symlink(ETdata,os.path.join(ETtemp,localETpath))
+                    if not os.path.exists(ETdata):
+                        print("data doesn't exist!")
+                        continue
+                    else:
+                        os.symlink(ETdata,os.path.join(ETtemp,localETpath))
                 convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
                 os.remove(os.path.join(ETtemp,localETpath))
              # mosaic dataset if needed
