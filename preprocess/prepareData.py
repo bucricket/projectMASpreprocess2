@@ -121,6 +121,7 @@ def main():
     ET_dir = args.ET_dir
     LC_dir = args.LC_dir
     cloud = args.cloud
+    collection = args.collection
       
      # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
