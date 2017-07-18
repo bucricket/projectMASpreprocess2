@@ -135,6 +135,7 @@ class Landsat(object):
                 print "no sr file for scenedID: %s, band: %d" % (sceneID,bands[i])
         albedotemp=(0.356*data[0])+(0.130*data[1])+(0.373*data[2])+(0.085*data[3])+(0.072*data[4])-0.0018
         ls.clone(albedoPath,albedotemp)
+        
 class ALEXI:
     def __init__(self, filepath,inputET):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
@@ -206,7 +207,7 @@ class ALEXI:
 
             for i in xrange(len(tile_num)):
                 inUL = [ULlon[i],ULlat[i]]
-                ETdata = os.path.join(self.inputET,'T%03d' % tile_num[i],
+                ETdata = os.path.join(self.inputET,
                                       'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 if not os.path.exists(os.path.join(ETtemp,localETpath)):
