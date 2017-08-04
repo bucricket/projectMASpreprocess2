@@ -90,7 +90,9 @@ class Landsat(object):
                         zip_ref.extractall(self.inputLC)
                         zip_ref.close()
                     LCdata = os.path.join(LCdataFolder,'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
-                    os.symlink(LCdata,os.path.join(LCtemp,LCdata.split(os.sep)[-1]))
+                    inputLCdata = os.path.join(LCtemp,LCdata.split(os.sep)[-1])
+                    if not os.exists(inputLCdata):
+                        os.symlink(LCdata,inputLCdata)
 
             # mosaic dataset if needed
             outfile = os.path.join(self.landsatLC,'tempMos.tif')
