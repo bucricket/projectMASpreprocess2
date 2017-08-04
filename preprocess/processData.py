@@ -98,10 +98,10 @@ class Landsat(object):
             subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp,os.sep),shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4],"%s" % outfile])
 
-            #====remove unzipped folders
-            LCfolders=next(os.walk(self.inputLC))[1]
-            for LCfolder in LCfolders:
-                shutil.rmtree(os.path.join(self.inputLC,LCfolder))
+#            #====remove unzipped folders
+#            LCfolders=next(os.walk(self.inputLC))[1]
+#            for LCfolder in LCfolders:
+#                shutil.rmtree(os.path.join(self.inputLC,LCfolder))
         dailyPath = os.path.join(self.landsatLC, '%s' % scene)
         
         if not os.path.exists(dailyPath):
