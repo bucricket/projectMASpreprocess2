@@ -152,6 +152,8 @@ class ALEXI:
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
+        self.nrow = ls.nrow
+        self.ncol = ls.ncol
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
         self.uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
         self.lrx = meta.CORNER_LR_PROJECTION_X_PRODUCT
@@ -236,7 +238,7 @@ class ALEXI:
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % masked , '%s' % subsetFile]
+            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % masked , '%s' % subsetFile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
@@ -258,6 +260,8 @@ class MET:
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
+        self.nrow = ls.nrow
+        self.ncol = ls.ncol
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
         self.uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
         self.lrx = meta.CORNER_LR_PROJECTION_X_PRODUCT
@@ -321,7 +325,8 @@ class MET:
         subsetFile = outfile[:-5]+'Sub.tiff'
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+                '-ts', '%f' % self.nrow, '%f' % self.ncol ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+
         warp(optionList)   
         
         #====Wind Speed================        
@@ -353,7 +358,7 @@ class MET:
         subsetFile = outfile[:-5]+'Sub.tiff'
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+                '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
         
         warp(optionList)
         
@@ -377,7 +382,7 @@ class MET:
         subsetFile = outfile[:-5]+'Sub.tiff'
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+                '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
         warp(optionList)     
         
         #===== Temperature 2m =============
@@ -400,7 +405,7 @@ class MET:
         subsetFile = outfile[:-5]+'Sub.tiff'
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-                '-tr', '%f' % self.delx, '%f' % self.dely ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+                '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
         warp(optionList) 
                 
     def getInsolation(self):
@@ -450,7 +455,7 @@ class MET:
             writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
             
                 #====get daily insolation=========================================
@@ -463,5 +468,5 @@ class MET:
             writeArray2Tiff(dataset2,inRes,inUL,inProj4,outfile,outFormat)
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
