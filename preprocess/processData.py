@@ -91,7 +91,7 @@ class Landsat(object):
                         zip_ref.close()
                     LCdata = os.path.join(LCdataFolder,'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
                     inputLCdata = os.path.join(LCtemp,LCdata.split(os.sep)[-1])
-                    if not os.exists(inputLCdata):
+                    if not os.path.exists(inputLCdata):
                         os.symlink(LCdata,inputLCdata)
 
             # mosaic dataset if needed
