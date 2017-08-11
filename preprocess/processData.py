@@ -328,7 +328,7 @@ class MET:
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
                 '-ts', '%f' % self.nrow, '%f' % self.ncol ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
-
+        print "running pydisalexi from Aug. 11"
         warp(optionList)   
         
         #====Wind Speed================        
