@@ -37,6 +37,8 @@ class Landsat(object):
 #        self.productID = meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
         ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
+        self.nrow = ls.nrow
+        self.ncol = ls.ncol
         self.proj4 = ls.proj4
         self.inProj4 = ls.proj4
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
@@ -112,7 +114,7 @@ class Landsat(object):
         shutil.rmtree(LCtemp)
         optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4,'-t_srs','%s' % self.proj4,\
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
-        '-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
+        '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
         
 
