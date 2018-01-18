@@ -296,7 +296,8 @@ class MET:
         self.dely = meta.GRID_CELL_SIZE_REFLECTIVE
         self.landsatDate = meta.DATE_ACQUIRED
         self.landsatTime = meta.SCENE_CENTER_TIME[:-2]
-        d = datetime.strptime('%s%s' % (self.landsatDate,self.landsatTime),'%Y-%m-%d%H:%M:%S.%f')
+        self.d = datetime.strptime('%s%s' % (self.landsatDate,self.landsatTime),'%Y-%m-%d%H:%M:%S.%f')
+        d = self.d
         self.year = d.year
         self.month = d.month
         self.day = d.day
@@ -317,6 +318,9 @@ class MET:
         #===Open CFSR file=================
         dailyPath = os.path.join(self.metBase,'%s' % self.scene)  
         ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
+        dateDiff = (datetime.datetime.today()-self.d).days
+        if (dateDiff<7):
+            ncdcURL = 'http://nomads.ncep.noaa.gov/pub/data/nccf/com/cfs/prod/'
 
         iHour = (int(self.hr/6.)*6.)
         fHour = self.hr-iHour
