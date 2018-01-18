@@ -21,6 +21,20 @@ from pydap.cas import urs
 import pygrib
 import zipfile
 
+
+def tile2latlon(tile):
+    row = tile/24
+    col = tile-(row*24)
+    # find lower left corner
+    lat= (75.-row*15.)-15.
+    lon=(col*15.-180.)-15. 
+    return [lat,lon]
+
+def latlon2tile(lat,lon):
+    row = int((75-lat)/15)
+    col = int((abs(-180-lon)/15)+1)  
+    tile = (row*24+col)
+    return tile
    
 class Landsat(object):
     def __init__(self, filepath,inputLC):
@@ -205,16 +219,20 @@ class ALEXI:
             for i in xrange(4):
                 lat =corners[i][0]
                 lon =corners[i][1]
-                row = int((75-lat)/15)
-                col = int((abs(-180-lon)/15)+1)
-                ULlat.append(75.-(row)*15.)
-                ULlon.append(-180.+(col-1.)*15.)      
-                tile_num.append(row*24+col)
+                tile  = latlon2tile(lat,lon)
+                LLlat,LLlon = tile2latlon(tile)
+#                row = int((75-lat)/15)
+#                col = int((abs(-180-lon)/15)+1)
+                ULlat.append(LLlat+15.0)
+                ULlon.append(LLlon)      
+                tile_num.append(tile)
 
             for i in xrange(len(tile_num)):
                 inUL = [ULlon[i],ULlat[i]]
+#                ETdata = os.path.join(self.inputET,
+#                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 ETdata = os.path.join(self.inputET,
-                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
+                                      'FINAL_EDAY_%s_T%03d.tif' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 if not os.path.exists(os.path.join(ETtemp,localETpath)):
                     if not os.path.exists(ETdata):
@@ -222,7 +240,7 @@ class ALEXI:
                         continue
                     else:
                         os.symlink(ETdata,os.path.join(ETtemp,localETpath))
-                convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
+#                convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
                 os.remove(os.path.join(ETtemp,localETpath))
              # mosaic dataset if needed
             outfile2 = os.path.join(self.ALEXIbase,'tempMos.tif')

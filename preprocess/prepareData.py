@@ -148,6 +148,8 @@ def main():
     processlai.get_LAI(collection, loc, start_date,end_date,usgs_user,
                        usgs_pass,earth_user,earth_pass,cloud)
     
+    get_LAI(loc,start_date,end_date,earth_user,earth_pass,cloud,sat,cacheDir)
+    
     #===process met,alexi and misc landsat data================================
     print("processing MET,ALEXI and misc landsat data ...")
     landsatTemp = os.path.join(landsatSR,'temp')
