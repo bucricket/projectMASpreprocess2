@@ -16,7 +16,7 @@ from .processData import ALEXI,MET,Landsat
 from .landsatTools import landsat_metadata
 from processlai import processlai
 from processlst import processlst
-from getlandsatdata import search
+from getlandsatdata import getlandsatdata
 
 
 #===set golbal paths===========================================================
@@ -160,7 +160,7 @@ def main():
 #    landsatTemp = os.path.join(landsatSR,'temp')
 #    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
     available = 'Y'
-    Downloaded_df = search(loc[0],loc[1],start_date,end_date,cloud,available,cacheDir,sat)
+    Downloaded_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,cacheDir,sat)
     fileList = Downloaded_df.local_file_path
     for fn in fileList:
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
