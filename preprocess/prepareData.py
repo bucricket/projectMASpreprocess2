@@ -20,6 +20,7 @@ from processlst import processlst
 
 #===set golbal paths===========================================================
 base = os.getcwd()
+cacheDir = os.path.abspath(os.path.join(base,os.pardir,"SATELLITE_DATA"))
 Folders = folders(base)  
 ALEXIbase = Folders['ALEXIbase']
 metBase = Folders['metBase']
@@ -113,6 +114,7 @@ def main():
     parser.add_argument("LC_dir", type=str, help="Landcover directory")
     parser.add_argument("cloud", type=int, help="cloud cover")
     parser.add_argument("collection", type=int,nargs='?', default=1)
+    parser.add_argument('-s','--sat', nargs='?',type=int, default=8, help='which landsat to search or download, i.e. Landsat 8 = 8')
     args = parser.parse_args()
     loc = [args.lat,args.lon] 
     isUSA = args.isUSA
@@ -121,6 +123,7 @@ def main():
     ET_dir = args.ET_dir
     LC_dir = args.LC_dir
     cloud = args.cloud
+    sat = args.sat
     collection = args.collection
       
      # =====earthData credentials==============================================
@@ -145,10 +148,11 @@ def main():
 
     #===process Landsat LAI====================================================
     print("processing LAI...")
-    processlai.get_LAI(collection, loc, start_date,end_date,usgs_user,
-                       usgs_pass,earth_user,earth_pass,cloud)
+#    processlai.get_LAI(loc,start_date,end_date,usgs_user,
+#                       usgs_pass,earth_user,earth_pass,cloud)
     
-#    get_LAI(loc,start_date,end_date,earth_user,earth_pass,cloud,sat,cacheDir)
+    processlai.get_LAI(loc,start_date,end_date,earth_user,
+                       earth_pass,cloud,sat,cacheDir)
     
     #===process met,alexi and misc landsat data================================
     print("processing MET,ALEXI and misc landsat data ...")
