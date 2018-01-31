@@ -12,7 +12,7 @@ import subprocess
 import numpy as np
 import utm
 import shutil
-from .utils import writeArray2Tiff,warp,folders,convertBin2tif
+from .utils import writeArray2Tiff,warp,folders
 from .utils import getHTTPdata
 from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
@@ -42,15 +42,26 @@ class Landsat(object):
                                             os.pardir,os.pardir))
         Folders = folders(base)    
         self.landsatLC = Folders['landsatLC']
-        self.landsatSR = Folders['landsatSR']
-        self.albedoBase = Folders['albedoBase']
+        self.satCache = Folders['satCache']
         self.inputLC = inputLC
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
         self.productID = filepath.split(os.sep)[-1][:-8]
-#        self.productID = meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
+        if meta.SPACECRAFT_ID == 'LANDSAT_7':        
+            self.sat = 'L7'
+        else:
+            self.sat = 'L8'  
+        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        self.lc_path = os.path.join(satscene_path,"LC")
+        if not os.path.exists(self.lc_path):
+            os.mkdir(self.lc_path)
+        self.albedo_path = os.path.join(satscene_path,"ALBEDO")
+        if not os.path.exists(self.albedo_path):
+            os.mkdir(self.albedo_path)
+        self.landsatSR = os.path.join(satscene_path,"RAW_DATA")
+#        self.productID = meta.LANDSAT_PRODUCT_ID
+        ls = GeoTIFF(os.path.join(self.landsatSR,'%s_sr_band1.tif' % self.productID))
         self.nrow = ls.nrow
         self.ncol = ls.ncol
         self.proj4 = ls.proj4
@@ -65,9 +76,10 @@ class Landsat(object):
         self.lrLon = meta.CORNER_LR_LON_PRODUCT
         self.delx = meta.GRID_CELL_SIZE_REFLECTIVE
         self.dely = meta.GRID_CELL_SIZE_REFLECTIVE
+
         
     def getLC(self,classification):
-        scene = self.scene
+#        scene = self.scene
         sceneID = self.sceneID
         if classification=='NLCD': #NLCD
             outfile = os.path.join(self.landsatLC,'nlcd_2011_landcover_2011_edition_2014_10_10','nlcd_2011_landcover_2011_edition_2014_10_10.img')
@@ -80,8 +92,7 @@ class Landsat(object):
         else:
             LCtemp = os.path.join(self.landsatLC,"temp")
             if not os.path.exists(LCtemp):
-                os.mkdir(LCtemp)
-                                 
+                os.mkdir(LCtemp)                                 
             #get UTM info
             utmZone= []
             corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
@@ -111,7 +122,7 @@ class Landsat(object):
                         os.symlink(LCdata,inputLCdata)
 
             # mosaic dataset if needed
-            outfile = os.path.join(self.landsatLC,'tempMos.tif')
+            outfile = os.path.join(LCtemp,'tempMos.tif')
 
             subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp,os.sep),shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4],"%s" % outfile])
@@ -120,55 +131,60 @@ class Landsat(object):
 #            LCfolders=next(os.walk(self.inputLC))[1]
 #            for LCfolder in LCfolders:
 #                shutil.rmtree(os.path.join(self.inputLC,LCfolder))
-        dailyPath = os.path.join(self.landsatLC, '%s' % scene)
-        
-        if not os.path.exists(dailyPath):
-            os.makedirs(dailyPath)
-        outfile2=os.path.join(dailyPath,'%s%s' % (sceneID,'_LC.tiff'))
+
+        outfile2=os.path.join(self.lc_path,'%s%s' % (sceneID,'_LC.tiff'))
         shutil.rmtree(LCtemp)
         optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4,'-t_srs','%s' % self.proj4,\
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
         '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
+        shutil.rmtree(LCtemp)
         
 
 
     def getAlbedo(self):
-        scene = self.scene
+#        scene = self.scene
         sceneID = self.sceneID
-        sceneFolderAlbedo = os.path.join(self.albedoBase,scene)
-        if not os.path.exists(sceneFolderAlbedo):
-            os.makedirs(sceneFolderAlbedo)
-        albedoPath = os.path.join(sceneFolderAlbedo,'%s_albedo.tiff' % sceneID)
+#        sceneFolderAlbedo = os.path.join(self.albedoBase,scene)
+#        if not os.path.exists(sceneFolderAlbedo):
+#            os.makedirs(sceneFolderAlbedo)
+#        albedoPath = os.path.join(sceneFolderAlbedo,'%s_albedo.tiff' % sceneID)
     
         bands = [1,3,4,5,7] # dont use blue
         # extract the desired surface refelctance bands from landsat
         data = []   
         for i in xrange(len(bands)):
-            landsatgeotif = os.path.join(self.landsatSR,scene,'%s_sr_band%d.tif' % (self.productID,bands[i]))
+            landsatgeotif = os.path.join(self.landsatSR,'%s_sr_band%d.tif' % (self.productID,bands[i]))
             if os.path.exists(landsatgeotif):
                 ls = GeoTIFF(landsatgeotif)
                 data.append(ls.data*0.0001)
             else:
                 print "no sr file for scenedID: %s, band: %d" % (sceneID,bands[i])
         albedotemp=(0.356*data[0])+(0.130*data[1])+(0.373*data[2])+(0.085*data[3])+(0.072*data[4])-0.0018
-        ls.clone(albedoPath,albedotemp)
+        ls.clone(self.albedo_path,albedotemp)
         
 class ALEXI:
     def __init__(self, filepath,inputET):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
-        self.landsatLC = Folders['landsatLC']
-        self.landsatSR = Folders['landsatSR']
         self.ALEXIbase = Folders['ALEXIbase']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
 #        self.productID = meta.LANDSAT_PRODUCT_ID
         self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
+        if meta.SPACECRAFT_ID == 'LANDSAT_7':        
+            self.sat = 'L7'
+        else:
+            self.sat = 'L8'  
+        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        self.alexi_path = os.path.join(satscene_path,"ET","400m")
+        if not os.path.exists(self.alexi_path):
+            os.mkdir(self.alexi_path)
+
         self.yeardoy = self.sceneID[9:16]
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
+        ls = GeoTIFF(os.path.join(self.landsatSR,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
         self.nrow = ls.nrow
         self.ncol = ls.ncol
@@ -191,44 +207,36 @@ class ALEXI:
         
     def getALEXIdata(self,ALEXIgeodict,isUSA):       
         #ALEXI input info
-        ALEXI_ulLon = ALEXIgeodict['ALEXI_ulLon']
-        ALEXI_ulLat = ALEXIgeodict['ALEXI_ulLat']
-        ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
-        ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
-        ALEXIshape = ALEXIgeodict['ALEXIshape']
+#        ALEXI_ulLon = ALEXIgeodict['ALEXI_ulLon']
+#        ALEXI_ulLat = ALEXIgeodict['ALEXI_ulLat']
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        inUL = [ALEXI_ulLon,ALEXI_ulLat]
-        inRes = [ALEXILonRes,ALEXILatRes] 
-        dailyPath = os.path.join(self.ALEXIbase,'%s' % self.scene)
         ETtemp = os.path.join(self.ALEXIbase,"temp")
         if not os.path.exists(ETtemp):
             os.makedirs(ETtemp)
-        if not os.path.exists(dailyPath):
-            os.makedirs(dailyPath)
             
-        outfile = os.path.join(dailyPath,'%s_alexiET.tiff' % self.sceneID)
+        outfile = os.path.join(self.alexi_path,'%s_alexiET.tiff' % self.sceneID)
         if not os.path.exists(outfile):
             print 'processing : %s...' % outfile
-            subsetFile = outfile[:-5]+'Sub.tiff'
+#            subsetFile = outfile[:-5]+'Sub.tiff'
             #********THIS SECTION IS A TEMPERARY FIX
             corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
                        [self.lrLat,self.lrLon],[self.lrLat,self.ulLon]]
             tile_num =[]
-            ULlat =[]
-            ULlon =[]
+#            ULlat =[]
+#            ULlon =[]
             for i in xrange(4):
                 lat =corners[i][0]
                 lon =corners[i][1]
                 tile  = latlon2tile(lat,lon)
-                LLlat,LLlon = tile2latlon(tile)
+#                LLlat,LLlon = tile2latlon(tile)
 #                row = int((75-lat)/15)
 #                col = int((abs(-180-lon)/15)+1)
-                ULlat.append(LLlat+15.0)
-                ULlon.append(LLlon)      
+#                ULlat.append(LLlat+15.0)
+#                ULlon.append(LLlon)      
                 tile_num.append(tile)
 
             for i in xrange(len(tile_num)):
-                inUL = [ULlon[i],ULlat[i]]
+#                inUL = [ULlon[i],ULlat[i]]
 #                ETdata = os.path.join(self.inputET,
 #                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 ETdata = os.path.join(self.inputET,
@@ -260,7 +268,7 @@ class ALEXI:
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % masked , '%s' % subsetFile]
+            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % masked , '%s' % outfile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
@@ -271,16 +279,25 @@ class MET:
         Folders = folders(base)    
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
-        self.landsatLC = Folders['landsatLC']
-        self.landsatSR = Folders['landsatSR']
         self.metBase = Folders['metBase']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
 #        self.productID = meta.LANDSAT_PRODUCT_ID
         self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
+        if meta.SPACECRAFT_ID == 'LANDSAT_7':        
+            self.sat = 'L7'
+        else:
+            self.sat = 'L8'  
+        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        self.met_path = os.path.join(satscene_path,"MET")
+        if not os.path.exists(self.met_path):
+            os.mkdir(self.met_path)
+        self.insol_path = os.path.join(satscene_path,"INSOL")
+        if not os.path.exists(self.insol_path):
+            os.mkdir(self.insol_path)
         self.yeardoy = self.sceneID[9:16]
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
+        ls = GeoTIFF(os.path.join(self.landsatSR,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
         self.nrow = ls.nrow
         self.ncol = ls.ncol
@@ -348,7 +365,8 @@ class MET:
         outFormat = gdal.GDT_Float32
         writeArray2Tiff(flipped.astype(float),inRes,inUL,inProj4,outfile,outFormat)
         
-        subsetFile = outfile[:-5]+'Sub.tiff'
+#        subsetFile = outfile[:-5]+'Sub.tiff'
+        subsetFile = os.path.join(self.met_path,'%s_p.tiff' % (self.sceneID))
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
                 '-ts', '%f' % self.nrow, '%f' % self.ncol ,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
@@ -381,7 +399,8 @@ class MET:
         outFormat = gdal.GDT_Float32
         writeArray2Tiff(flipped.astype(float),inRes,inUL,inProj4,outfile,outFormat)
         
-        subsetFile = outfile[:-5]+'Sub.tiff'
+#        subsetFile = outfile[:-5]+'Sub.tiff'
+        subsetFile = os.path.join(self.met_path,'%s_u.tiff' % (self.sceneID))
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
                 '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
@@ -405,7 +424,8 @@ class MET:
         outFormat = gdal.GDT_Float32
         writeArray2Tiff(flipped.astype(float),inRes,inUL,inProj4,outfile,outFormat)
         
-        subsetFile = outfile[:-5]+'Sub.tiff'
+#        subsetFile = outfile[:-5]+'Sub.tiff'
+        subsetFile = os.path.join(self.met_path,'%s_q2.tiff' % (self.sceneID))
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
                 '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
@@ -428,11 +448,13 @@ class MET:
         outFormat = gdal.GDT_Float32
         writeArray2Tiff(flipped.astype(float),inRes,inUL,inProj4,outfile,outFormat)
         
-        subsetFile = outfile[:-5]+'Sub.tiff'
+#        subsetFile = outfile[:-5]+'Sub.tiff'
+        subsetFile = os.path.join(self.met_path,'%s_Ta.tiff' % (self.sceneID))
         optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
                 '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
                 '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
         warp(optionList) 
+        shutil.rmtree(dailyPath)
                 
     def getInsolation(self):
         MERRA2_ulLat = 90.0
@@ -463,7 +485,7 @@ class MET:
         if not os.path.exists(dailyPath):
             os.makedirs(dailyPath)
         #====get overpass hour insolation=========================================
-        outFN = os.path.join(dailyPath,'%s_Insol1Sub.tiff' % self.sceneID) 
+        outFN = os.path.join(self.insol_path,'%s_Insol1Sub.tiff' % self.sceneID) 
         print 'processing : %s...' % outFN
         session = urs.setup_session(username = self.earthLoginUser, 
                     password = self.earthLoginPass,
@@ -476,7 +498,8 @@ class MET:
             dataset = np.squeeze(Insol[self.hr,:,:,:])*1.
             
             outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,'Insol1'))
-            subsetFile = outfile[:-5]+'Sub.tiff'
+#            subsetFile = outfile[:-5]+'Sub.tiff'
+            subsetFile = os.path.join(self.insol_path,'%s_%s.tiff' % (self.sceneID,'Insol1'))
             outFormat = gdal.GDT_Float32
             writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
@@ -485,14 +508,16 @@ class MET:
             warp(optionList)
             
                 #====get daily insolation=========================================
-        outFN = os.path.join(dailyPath,'%s_Insol24Sub.tiff' % self.sceneID)
+        outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
         if not os.path.exists(outFN):
             dataset2 = np.flipud(np.sum(np.squeeze(Insol[:,:,:]),axis=0))
             outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,'Insol24'))
-            subsetFile = outfile[:-5]+'Sub.tiff'
+#            subsetFile = outfile[:-5]+'Sub.tiff'
+            subsetFile = os.path.join(self.insol_path,'%s_%s.tiff' % (self.sceneID,'Insol24'))
             outFormat = gdal.GDT_Float32
             writeArray2Tiff(dataset2,inRes,inUL,inProj4,outfile,outFormat)
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'bilinear',\
             '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
+            shutil.rmtree(dailyPath)

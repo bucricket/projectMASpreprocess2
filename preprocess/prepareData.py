@@ -9,7 +9,6 @@ import os
 import keyring
 import getpass
 import argparse
-import glob
 import pycurl
 from .utils import folders
 from .processData import ALEXI,MET,Landsat
@@ -26,7 +25,6 @@ Folders = folders(base)
 ALEXIbase = Folders['ALEXIbase']
 metBase = Folders['metBase']
 landsatDataBase = Folders['landsatDataBase']
-landsatSR = Folders['landsatSR']
 
 def prepare_data(fn,session,isUSA,LCpath,ETpath):
 
@@ -34,7 +32,8 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     ETpath = ETpath
     meta = landsat_metadata(fn)
     sceneID = meta.LANDSAT_SCENE_ID
-    scene = sceneID[3:9]
+    satscene_path = os.sep.join(fn.split(os.sep)[:-2])
+#    scene = sceneID[3:9]
     isUSA = isUSA
     ALEXI_ulLon = 0.0 
     ALEXI_ulLat = 0.0
@@ -55,9 +54,11 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
 
     
     #=====prepare the ETd data=================================================    
-    sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
+#    sceneDir = os.path.join(ALEXIbase,'%s' % scene) 
+    sceneDir = os.path.join(satscene_path,'ET','400m')        
     
-    outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
+#    outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
+    outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'get->ALEXI ET...'
         if not os.path.exists(sceneDir):
@@ -66,9 +67,11 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a.getALEXIdata(ALEXIgeodict,isUSA)
     
     #=====prepare MET data=====================================================    
-    sceneDir = os.path.join(metBase,'%s' % scene)
+#    sceneDir = os.path.join(metBase,'%s' % scene)
+    sceneDir = os.path.join(satscene_path,'MET')
     
-    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
+#    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
+    outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'get->MET data...'
         if not os.path.exists(sceneDir):
@@ -77,7 +80,9 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a.getCFSR()
     
     #====prepare insolation====================================================
-    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
+    sceneDir = os.path.join(satscene_path,'INSOL')
+#    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
+    outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)
     if not os.path.exists(outFN):
         if not os.path.exists(sceneDir):
             os.makedirs(sceneDir)
@@ -85,7 +90,8 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a.getInsolation()
     
     #=====prepare biophysical parameters at overpass time======================
-    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
+#    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
+    sceneDir = os.path.join(satscene_path,'ALBEDO')
     outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
     if not os.path.exists(outFN):
         if not os.path.exists(sceneDir):
@@ -95,7 +101,8 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         a.getAlbedo()
 
     
-    sceneDir = os.path.join(landsatDataBase,'LC',scene)
+#    sceneDir = os.path.join(landsatDataBase,'LC',scene)
+    sceneDir = os.path.join(satscene_path,'LC')
     outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
     if not os.path.exists(outFN):
         if not os.path.exists(sceneDir):
@@ -149,16 +156,11 @@ def main():
 
     #===process Landsat LAI====================================================
     print("processing LAI...")
-#    processlai.get_LAI(loc,start_date,end_date,usgs_user,
-#                       usgs_pass,earth_user,earth_pass,cloud)
-    
     processlai.get_LAI(loc,start_date,end_date,earth_user,
                        earth_pass,cloud,sat,cacheDir)
     
     #===process met,alexi and misc landsat data================================
     print("processing MET,ALEXI and misc landsat data ...")
-#    landsatTemp = os.path.join(landsatSR,'temp')
-#    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
     available = 'Y'
     Downloaded_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,cacheDir,sat)
     fileList = Downloaded_df.local_file_path
