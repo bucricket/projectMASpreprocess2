@@ -38,8 +38,9 @@ def latlon2tile(lat,lon):
    
 class Landsat(object):
     def __init__(self, filepath,inputLC):
-        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
-                                            os.pardir,os.pardir))
+#        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
+#                                            os.pardir,os.pardir))
+        base = os.getcwd()
         Folders = folders(base)    
         self.landsatLC = Folders['landsatLC']
         self.satCache = Folders['satCache']
@@ -165,8 +166,9 @@ class Landsat(object):
         
 class ALEXI:
     def __init__(self, filepath,inputET):
-        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
-                                            os.pardir,os.pardir))
+#        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
+#                                            os.pardir,os.pardir))
+        base = os.getcwd()
         Folders = folders(base)    
         self.ALEXIbase = Folders['ALEXIbase']
         self.satCache = Folders['satCache']
@@ -274,10 +276,9 @@ class ALEXI:
             shutil.rmtree(ETtemp)
 class MET:
     def __init__(self, filepath,session):
-        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
-                                            os.pardir,os.pardir))
-        print base
-        Folders = folders(base)    
+#        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
+#                                            os.pardir,os.pardir))
+        base = os.getcwd()    
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
         self.metBase = Folders['metBase']
