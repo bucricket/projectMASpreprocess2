@@ -210,6 +210,7 @@ def main():
     for productID in productIDs:
         out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
         fn = os.path.join(out_df.local_file_path[0],productID+"_MTL.txt")
+        print fn
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
     
     #===process Landsat LST====================================================
