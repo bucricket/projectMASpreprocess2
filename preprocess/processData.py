@@ -134,7 +134,7 @@ class Landsat(object):
 #                shutil.rmtree(os.path.join(self.inputLC,LCfolder))
 
         outfile2=os.path.join(self.lc_path,'%s%s' % (sceneID,'_LC.tiff'))
-        shutil.rmtree(LCtemp)
+
         optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4,'-t_srs','%s' % self.proj4,\
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
         '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
