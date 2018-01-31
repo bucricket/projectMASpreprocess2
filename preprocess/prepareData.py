@@ -64,14 +64,14 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     
     #=====prepare the ETd data=================================================    
 #    sceneDir = os.path.join(ALEXIbase,'%s' % scene) 
-    sceneDir = os.path.join(satscene_path,'ET','400m')        
+    sceneDir = os.path.join(satscene_path,'ET','400m')   
+    if not os.path.exists(sceneDir):
+        os.mkdir(sceneDir)     
     
 #    outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'get->ALEXI ET...'
-        if not os.path.exists(sceneDir):
-            os.makedirs(sceneDir)
         a = ALEXI(fn,ETpath)
         a.getALEXIdata(ALEXIgeodict,isUSA)
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
@@ -79,6 +79,8 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     #=====prepare MET data=====================================================    
 #    sceneDir = os.path.join(metBase,'%s' % scene)
     sceneDir = os.path.join(satscene_path,'MET')
+    if not os.path.exists(sceneDir):
+        os.mkdir(sceneDir) 
     
 #    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
@@ -87,8 +89,6 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     outFNq2 = os.path.join(sceneDir,'%s_q2.tiff' % sceneID)
     if not os.path.exists(outFN):
         print 'get->MET data...'
-        if not os.path.exists(sceneDir):
-            os.makedirs(sceneDir)
         a = MET(fn,session)
         a.getCFSR()
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'SFC_PRESS')
@@ -98,12 +98,12 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     
     #====prepare insolation====================================================
     sceneDir = os.path.join(satscene_path,'INSOL')
+    if not os.path.exists(sceneDir):
+        os.mkdir(sceneDir) 
 #    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
     outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)
     outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
     if not os.path.exists(outFN):
-        if not os.path.exists(sceneDir):
-            os.makedirs(sceneDir)
         a = MET(fn,session)
         a.getInsolation()
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
@@ -112,10 +112,10 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     #=====prepare biophysical parameters at overpass time======================
 #    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
     sceneDir = os.path.join(satscene_path,'ALBEDO')
+    if not os.path.exists(sceneDir):
+        os.mkdir(sceneDir) 
     outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
     if not os.path.exists(outFN):
-        if not os.path.exists(sceneDir):
-            os.makedirs(sceneDir)
         print 'processing : albedo...' 
         a = Landsat(fn,LCpath)
         a.getAlbedo()
@@ -124,10 +124,10 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     
 #    sceneDir = os.path.join(landsatDataBase,'LC',scene)
     sceneDir = os.path.join(satscene_path,'LC')
+    if not os.path.exists(sceneDir):
+        os.mkdir(sceneDir) 
     outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
     if not os.path.exists(outFN):
-        if not os.path.exists(sceneDir):
-            os.makedirs(sceneDir)
         a = Landsat(fn,LCpath)
         a.getLC(landcover)
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'LC')
