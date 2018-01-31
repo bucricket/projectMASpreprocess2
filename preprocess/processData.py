@@ -338,7 +338,9 @@ class MET:
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         
         #===Open CFSR file=================
-        dailyPath = os.path.join(self.metBase,'%s' % self.scene)  
+        dailyPath = os.path.join(self.metBase,'%s' % self.scene) 
+        if not os.path.exists(dailyPath):
+            os.makedirs(dailyPath)
         ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
         dateDiff = (datetime.today()-self.d).days
         if (dateDiff<7):
