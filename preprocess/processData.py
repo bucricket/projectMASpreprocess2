@@ -185,7 +185,7 @@ class ALEXI:
         self.alexi_path = os.path.join(satscene_path,"ET","400m")
         if not os.path.exists(self.alexi_path):
             os.mkdir(self.alexi_path)
-
+        self.landsatSR = os.path.join(satscene_path,"RAW_DATA")
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
@@ -278,7 +278,8 @@ class MET:
     def __init__(self, filepath,session):
 #        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
 #                                            os.pardir,os.pardir))
-        base = os.getcwd()    
+        base = os.getcwd() 
+        Folders = folders(base)
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
         self.metBase = Folders['metBase']
@@ -299,6 +300,7 @@ class MET:
         self.insol_path = os.path.join(satscene_path,"INSOL")
         if not os.path.exists(self.insol_path):
             os.mkdir(self.insol_path)
+        self.landsatSR = os.path.join(satscene_path,"RAW_DATA")
         self.yeardoy = self.sceneID[9:16]
         ls = GeoTIFF(os.path.join(self.landsatSR,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
