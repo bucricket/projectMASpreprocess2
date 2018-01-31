@@ -189,7 +189,7 @@ def main():
     product = 'ALBEDO'
     search_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,landsatCacheDir,sat)
     productIDs = search_df.LANDSAT_PRODUCT_ID
-    fileList = search_df.local_file_path
+#    fileList = search_df.local_file_path
     #====check what products are processed against what Landsat data is available===
     if os.path.exists(db_fn):
         conn = sqlite3.connect( db_fn )
@@ -205,9 +205,11 @@ def main():
                 output_df = pd.DataFrame()
                 for productID in productIDs:
                     output_df = output_df.append(getlandsatdata.searchProduct(productID,cacheDir,sat),ignore_index=True)
-                fileList = output_df.local_file_path
+                productIDs = output_df.LANDSAT_PRODUCT_ID
 
-    for fn in fileList:
+    for productID in productIDs:
+        out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
+        fn = os.path.join(out_df.local_file_path,productID+"_MTL.txt")
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
     
     #===process Landsat LST====================================================
