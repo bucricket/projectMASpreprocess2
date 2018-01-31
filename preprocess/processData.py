@@ -53,7 +53,7 @@ class Landsat(object):
             self.sat = 'L7'
         else:
             self.sat = 'L8'  
-        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
         self.lc_path = os.path.join(satscene_path,"LC")
         if not os.path.exists(self.lc_path):
             os.mkdir(self.lc_path)
@@ -181,7 +181,7 @@ class ALEXI:
             self.sat = 7
         else:
             self.sat = 8  
-        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
         self.alexi_path = os.path.join(satscene_path,"ET","400m")
         if not os.path.exists(self.alexi_path):
             os.mkdir(self.alexi_path)
@@ -292,7 +292,7 @@ class MET:
             self.sat = 7
         else:
             self.sat = 8  
-        satscene_path = os.path.join(self.satCache,"L%d" % self.sat,self.scene)
+        satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
         self.met_path = os.path.join(satscene_path,"MET")
         if not os.path.exists(self.met_path):
             os.mkdir(self.met_path)
