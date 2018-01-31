@@ -16,6 +16,8 @@ from .landsatTools import landsat_metadata
 from processlai import processlai
 from processlst import processlst
 from getlandsatdata import getlandsatdata
+import pandas as pd
+import sqlite3
 
 
 #===set golbal paths===========================================================
@@ -27,11 +29,18 @@ metBase = Folders['metBase']
 landsatDataBase = Folders['landsatDataBase']
 
 def prepare_data(fn,session,isUSA,LCpath,ETpath):
+    
 
     LCpath = LCpath
     ETpath = ETpath
     meta = landsat_metadata(fn)
+    if meta.SPACECRAFT_ID == 'LANDSAT_7':        
+        sat = 7
+    else:
+        sat = 8
     sceneID = meta.LANDSAT_SCENE_ID
+    productID = meta.LANDSAT_PRODUCT_ID
+    landsatCacheDir = os.path.join(cacheDir,"LANDSAT")
     satscene_path = os.sep.join(fn.split(os.sep)[:-2])
 #    scene = sceneID[3:9]
     isUSA = isUSA
@@ -44,7 +53,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     ALEXIgeodict ={'ALEXI_ulLat':ALEXI_ulLat,'ALEXI_ulLon':ALEXI_ulLon,
                'ALEXI_LatRes':ALEXILatRes,'ALEXI_LonRes':ALEXILonRes,
                'ALEXIshape': ALEXIshape}
-
+    output_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
         
     #=====pick Landcover map===================================================
     if isUSA ==1:
@@ -65,6 +74,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
             os.makedirs(sceneDir)
         a = ALEXI(fn,ETpath)
         a.getALEXIdata(ALEXIgeodict,isUSA)
+        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
     
     #=====prepare MET data=====================================================    
 #    sceneDir = os.path.join(metBase,'%s' % scene)
@@ -72,22 +82,32 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     
 #    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
+    outFNu = os.path.join(sceneDir,'%s_u.tiff' % sceneID)
+    outFNta = os.path.join(sceneDir,'%s_Ta.tiff' % sceneID)
+    outFNq2 = os.path.join(sceneDir,'%s_q2.tiff' % sceneID)
     if not os.path.exists(outFN):
         print 'get->MET data...'
         if not os.path.exists(sceneDir):
             os.makedirs(sceneDir)
         a = MET(fn,session)
         a.getCFSR()
+        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'SFC_PRESS')
+        processlai.updateLandsatProductsDB(output_df,outFNu,landsatCacheDir,'WIND')
+        processlai.updateLandsatProductsDB(output_df,outFNta,landsatCacheDir,'TA')
+        processlai.updateLandsatProductsDB(output_df,outFNq2,landsatCacheDir,'Q2')
     
     #====prepare insolation====================================================
     sceneDir = os.path.join(satscene_path,'INSOL')
 #    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
     outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)
+    outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
     if not os.path.exists(outFN):
         if not os.path.exists(sceneDir):
             os.makedirs(sceneDir)
         a = MET(fn,session)
         a.getInsolation()
+        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
+        processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
     
     #=====prepare biophysical parameters at overpass time======================
 #    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
@@ -99,6 +119,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
         print 'processing : albedo...' 
         a = Landsat(fn,LCpath)
         a.getAlbedo()
+        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALBEDO')
 
     
 #    sceneDir = os.path.join(landsatDataBase,'LC',scene)
@@ -109,6 +130,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
             os.makedirs(sceneDir)
         a = Landsat(fn,LCpath)
         a.getLC(landcover)
+        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'LC')
 
 def main():    
     # Get time and location from user
@@ -161,9 +183,30 @@ def main():
     
     #===process met,alexi and misc landsat data================================
     print("processing MET,ALEXI and misc landsat data ...")
+    landsatCacheDir = os.path.join(cacheDir,"LANDSAT")
+    db_fn = os.path.join(landsatCacheDir,"landsat_products.db")
     available = 'Y'
-    Downloaded_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,cacheDir,sat)
-    fileList = Downloaded_df.local_file_path
+    product = 'ALBEDO'
+    search_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,landsatCacheDir,sat)
+    productIDs = search_df.LANDSAT_PRODUCT_ID
+    fileList = search_df.local_file_path
+    #====check what products are processed against what Landsat data is available===
+    if os.path.exists(db_fn):
+        conn = sqlite3.connect( db_fn )
+        res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = res.fetchall()[0]
+        if (product in tables):
+            processedProductIDs = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+            df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
+            merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
+            df3 = merged[merged['_merge'] != 'both' ]
+            productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
+            if len(productIDs)>0:
+                output_df = pd.DataFrame()
+                for productID in productIDs:
+                    output_df = output_df.append(getlandsatdata.searchProduct(productID,cacheDir,sat),ignore_index=True)
+                fileList = output_df.local_file_path
+
     for fn in fileList:
         prepare_data(fn,session,isUSA,LC_dir,ET_dir)
     
