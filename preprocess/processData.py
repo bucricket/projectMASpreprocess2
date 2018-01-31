@@ -150,6 +150,8 @@ class Landsat(object):
 #        if not os.path.exists(sceneFolderAlbedo):
 #            os.makedirs(sceneFolderAlbedo)
 #        albedoPath = os.path.join(sceneFolderAlbedo,'%s_albedo.tiff' % sceneID)
+        albedoPath = os.path.join(self.albedo_path,'%s_albedo.tiff' % sceneID)
+        
     
         bands = [1,3,4,5,7] # dont use blue
         # extract the desired surface refelctance bands from landsat
@@ -162,7 +164,7 @@ class Landsat(object):
             else:
                 print "no sr file for scenedID: %s, band: %d" % (sceneID,bands[i])
         albedotemp=(0.356*data[0])+(0.130*data[1])+(0.373*data[2])+(0.085*data[3])+(0.072*data[4])-0.0018
-        ls.clone(self.albedo_path,albedotemp)
+        ls.clone(albedoPath,albedotemp)
         
 class ALEXI:
     def __init__(self, filepath,inputET):
