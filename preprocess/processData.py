@@ -50,9 +50,9 @@ class Landsat(object):
         self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
         if meta.SPACECRAFT_ID == 'LANDSAT_7':        
-            self.sat = 'L7'
+            self.sat = 7
         else:
-            self.sat = 'L8'  
+            self.sat = 8  
         satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
         self.lc_path = os.path.join(satscene_path,"LC")
         if not os.path.exists(self.lc_path):
