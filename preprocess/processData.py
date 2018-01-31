@@ -169,6 +169,7 @@ class ALEXI:
                                             os.pardir,os.pardir))
         Folders = folders(base)    
         self.ALEXIbase = Folders['ALEXIbase']
+        self.satCache = Folders['satCache']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
 #        self.productID = meta.LANDSAT_PRODUCT_ID
@@ -280,6 +281,7 @@ class MET:
         self.earthLoginUser = session[0]
         self.earthLoginPass = session[1]
         self.metBase = Folders['metBase']
+        self.satCache = Folders['satCache']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
 #        self.productID = meta.LANDSAT_PRODUCT_ID
