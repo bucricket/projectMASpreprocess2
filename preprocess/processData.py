@@ -252,7 +252,7 @@ class ALEXI:
                     else:
                         os.symlink(ETdata,os.path.join(ETtemp,localETpath))
 #                convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
-                os.remove(os.path.join(ETtemp,localETpath))
+#                os.remove(os.path.join(ETtemp,localETpath))
              # mosaic dataset if needed
             outfile2 = os.path.join(self.ALEXIbase,'tempMos.tif')
 
