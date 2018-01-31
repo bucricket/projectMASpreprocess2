@@ -340,7 +340,7 @@ class MET:
         #===Open CFSR file=================
         dailyPath = os.path.join(self.metBase,'%s' % self.scene)  
         ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
-        dateDiff = (datetime.datetime.today()-self.d).days
+        dateDiff = (datetime.today()-self.d).days
         if (dateDiff<7):
             ncdcURL = 'http://nomads.ncep.noaa.gov/pub/data/nccf/com/cfs/prod/'
 
