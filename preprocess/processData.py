@@ -137,7 +137,7 @@ class Landsat(object):
 
         optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4,'-t_srs','%s' % self.proj4,\
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
-        '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
+        '-ts', '%f' % self.ncol, '%f' % self.nrow,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
         shutil.rmtree(LCtemp)
         
@@ -273,7 +273,7 @@ class ALEXI:
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-ts', '%f' % self.nrow, '%f' % self.ncol,'-multi','-of','GTiff','%s' % masked , '%s' % outfile]
+            '-ts', '%f' % self.ncol, '%f' % self.nrow,'-multi','-of','GTiff','%s' % masked , '%s' % outfile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
