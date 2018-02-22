@@ -20,6 +20,10 @@ from pydap.client import open_url
 from pydap.cas import urs
 import pygrib
 import zipfile
+from xml.dom import minidom
+from xml.etree.ElementTree import parse, Element, SubElement, tostring
+import glob
+import gzip
 
 
 def tile2latlon(tile):
@@ -296,6 +300,9 @@ class MET:
         else:
             self.sat = 8  
         satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
+        self.gsip_path = satscene_path = os.path.join(self.satCache,"GSIP")
+        if not os.path.exists(self.gsip_path):
+            os.mkdir(self.gsip_path)
         self.met_path = os.path.join(satscene_path,"MET")
         if not os.path.exists(self.met_path):
             os.mkdir(self.met_path)
@@ -516,7 +523,7 @@ class MET:
             '-ts', '%f' % self.ncol, '%f' % self.nrow,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
             
-                #====get daily insolation=========================================
+    #====get daily insolation==================================================
         outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
         if not os.path.exists(outFN):
             dataset2 = np.flipud(np.sum(np.squeeze(Insol[:,:,:]),axis=0))
@@ -530,3 +537,146 @@ class MET:
             '-ts', '%f' % self.ncol, '%f' % self.nrow,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
             shutil.rmtree(dailyPath)
+            
+    def getGSIP(self):
+        doy = (self.d-datetime(self.year,12,31)).days
+        date = '%d%03d' % (self.year,doy)
+    #=======================GSIP daily insolation==============================
+        def gunzip(fn, *positional_parameters, **keyword_parameters):
+            inF = gzip.GzipFile(fn, 'rb')
+            s = inF.read()
+            inF.close()
+            if ('out_fn' in keyword_parameters):
+                outF = file(keyword_parameters['out_fn'], 'wb')
+            else:
+                outF = file(fn[:-3], 'wb')
+                  
+            outF.write(s)
+            outF.close()
+#        def convertGSIP2tiff(year,doy):
+#            inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+#            date = '%d%03d' % (year,doy)
+#            gsip_fn = glob.glob(os.path.join(GSIP_path, "%d" % year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+#            if os.path.exists(gsip_fn):
+#                gunzip(gsip_fn)
+#                tif_fn = gsip_fn[:-5]+'tif' 
+#                nc_fn = 'NETCDF:"%s":insolation' % gsip_fn[:-3]
+#                if not os.path.exists(tif_fn):
+#                    ds = gdal.Open(nc_fn)
+#                    aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
+#                    writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
+#                
+#        def processGSIPtiles(tile,year,doy):
+#            LLlat,LLlon = tile2latlon(tile)
+#            URlat = LLlat+15.
+#            LRlon = LLlon+15.
+#            date = '%d%03d' % (year,doy)
+#            insol24_fn = os.path.join(insol_path, 'RS24_%s_T%03d.tif' % (date,tile))
+#            tif_fn = glob.glob(os.path.join(GSIP_path, "%d" % year,'*.gsipL3_global_GDA_%s.tif' % date))[0]
+#            if os.path.exists(tif_fn): 
+#                outds = gdal.Open(tif_fn)
+#                outds = gdal.Translate(insol24_fn, outds,options=gdal.TranslateOptions(xRes=0.004,yRes=0.004,
+#                                                                                    projWin=[LLlon,URlat,LRlon,LLlat],
+#                                                                                    resampleAlg = 'bilinear'))
+#                outds = None
+                
+    #==============GSIP hourly insolation==================================
+
+    
+    
+        def addGeoloc(data_fn,lat_fn,lon_fn):
+            out_fn = data_fn[:-4]+'.vrt'
+            tree = parse(data_fn)
+            root = tree.getroot()
+            a = root[0]
+            b = root[1]
+            c = Element('metadata')
+            c.set('domain','GEOLOCATION')
+            mdi1 = SubElement(c,'mdi')
+            mdi1.text = "%s" % lon_fn
+            mdi1.set('key','X_DATASET')
+            mdi2 = SubElement(c,'mdi')
+            mdi2.text = "1"
+            mdi2.set('key','X_BAND')
+            mdi3 = SubElement(c,'mdi')
+            mdi3.text = "%s" % lat_fn
+            mdi3.set('key','Y_DATASET')
+            mdi4 = SubElement(c,'mdi')
+            mdi4.text = "1"
+            mdi4.set('key','Y_BAND')
+            mdi5 = SubElement(c,'mdi')
+            mdi5.text = "0"
+            mdi5.set('key','PIXEL_OFFSET')
+            mdi6 = SubElement(c,'mdi')
+            mdi6.text = "0"
+            mdi6.set('key','LINE_OFFSET')
+            mdi7 = SubElement(c,'mdi')
+            mdi7.text = "1"
+            mdi7.set('key','PIXEL_STEP')
+            mdi7 = SubElement(c,'mdi')
+            mdi7.text = "1"
+            mdi7.set('key','LINE_STEP')
+            
+            root = Element('VRTDataset')
+            root.set('rasterXSize',"3712")
+            root.set('rasterYSize',"3712")
+            root.extend((c,a,b))
+        #    xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent="  ")
+            
+            with open(out_fn, "w") as f:
+                f.write(prettify(root))
+        
+        
+        def prettify(elem):
+            rough_string = tostring(elem, 'utf-8') #xml as ElementTree
+            reparsed = minidom.parseString(rough_string) #mini as minidom
+            return '\n'.join([line for line in reparsed.toprettyxml(indent=' '*2).split('\n') if line.strip()]) 
+#====convert NETCDF data to VRTs===============================================
+        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
+        layers = ["flux_swd_sfc","latitude-pc","longitude-pc"]
+        if os.path.exists(gsip_fn):
+            gunzip(gsip_fn)
+            netcdf_fn = gsip_fn[:-3]
+            outFN = os.path.join(self.insol_path,'%s_Insol1Sub.tiff' % self.sceneID)
+            if not os.path.exists(outFN):
+                fns = []
+                for layer in layers:
+                    raw_fn = 'NETCDF:%s:%s'  % (netcdf_fn,layer)  
+                    vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layer)
+                    outds = gdal.Open(raw_fn)
+                    outds = gdal.Translate(vrt_fn, outds,options=gdal.TranslateOptions(format="VRT"))
+                    outds = None
+                    fns.append(vrt_fn)
+                addGeoloc(fns[0],fns[1],fns[2])
+                vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
+                in_ds = gdal.Open(vrt_fn)
+                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
+                                                                         dstSRS="EPSG:4326",
+                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                         xRes=30.0, yRes=30.0, multithread=True))
+                outds = None
+        #=======Daily GSIP====================================================      
+#        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
+        gsip_fn = glob.glob(os.path.join(self.gsip_path, "%d" % self.year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+        layers = ["insolation"]
+        if os.path.exists(gsip_fn):
+            gunzip(gsip_fn)
+            netcdf_fn = gsip_fn[:-3]
+            outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
+            if not os.path.exists(outFN):
+                fns = []
+                for layer in layers:
+                    raw_fn = 'NETCDF:%s:%s'  % (netcdf_fn,layer)  
+                    vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layer)
+                    outds = gdal.Open(raw_fn)
+                    outds = gdal.Translate(vrt_fn, outds,options=gdal.TranslateOptions(format="VRT"))
+                    outds = None
+                    fns.append(vrt_fn)
+                addGeoloc(fns[0],fns[1],fns[2])
+                vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
+                in_ds = gdal.Open(vrt_fn)
+                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
+                                                                         dstSRS="EPSG:4326",
+                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                         xRes=30.0, yRes=30.0, multithread=True))
+                outds = None
