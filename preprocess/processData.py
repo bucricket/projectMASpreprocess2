@@ -641,7 +641,7 @@ class MET:
         gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
         print(gsip_path)
         gsip_fn = glob.glob(gsip_path)[0]
-        layers = ["flux_swd_sfc","pixel-latitude","pixel-longitude"]
+        layers = ["flux_swd_sfc","pixel_latitude","pixel_longitude"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
             netcdf_fn = gsip_fn[:-3]
