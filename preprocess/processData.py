@@ -661,6 +661,8 @@ class MET:
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
                                                                          dstSRS=self.proj4,
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                         width=self.ncol,
+                                                                         height=self.nrow,
                                                                          xRes=30.0, yRes=30.0, multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
@@ -689,6 +691,8 @@ class MET:
                 in_ds = gdal.Open(vrt_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
                                                                          dstSRS=self.proj4,
+                                                                         width=self.ncol,
+                                                                         height=self.nrow,
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          xRes=30.0, yRes=30.0, multithread=True))
                 outds = None
