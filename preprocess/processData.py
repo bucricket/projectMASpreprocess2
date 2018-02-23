@@ -659,13 +659,17 @@ class MET:
                 vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
                 in_ds = gdal.Open(vrt_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
-                                                                         dstSRS=self.proj4,
-                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                         dstSRS="EPSG:4326",
+                                                                         outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
+                        self.ulLat = meta.CORNER_UL_LAT_PRODUCT
+        self.ulLon = meta.CORNER_UL_LON_PRODUCT
+        self.lrLat = meta.CORNER_LR_LAT_PRODUCT
+        self.lrLon = meta.CORNER_LR_LON_PRODUCT
         #=======Daily GSIP====================================================      
 #        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
 #        gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
@@ -690,10 +694,10 @@ class MET:
                 vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
                 in_ds = gdal.Open(vrt_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
-                                                                         dstSRS=self.proj4,
+                                                                         dstSRS="EPSG:4326",
+                                                                         outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
-                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
