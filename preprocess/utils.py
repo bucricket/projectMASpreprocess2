@@ -40,10 +40,13 @@ def folders(base):
     satCache = os.path.join(base,'SATELLITE_DATA')
     if not os.path.exists(satCache):
         os.makedirs(satCache)
+    modCache = os.path.join(base,'MODEL_DATA')
+    if not os.path.exists(modCache):
+        os.makedirs(modCache)
     out = {'dataBase':dataBase,'metBase':metBase,'ALEXIbase':ALEXIbase,
            'landsatDataBase':landsatDataBase,'resultsBase':resultsBase,
            'landsatLC':landsatLC,'albedoBase':albedoBase,
-           'satCache':satCache}
+           'satCache':satCache,'modCache':modCache}
     return out
     
 def warp(args):

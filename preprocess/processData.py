@@ -171,13 +171,14 @@ class Landsat(object):
         ls.clone(albedoPath,albedotemp)
         
 class ALEXI:
-    def __init__(self, filepath,inputET):
+    def __init__(self, filepath):
 #        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
 #                                            os.pardir,os.pardir))
         base = os.getcwd()
         Folders = folders(base)    
         self.ALEXIbase = Folders['ALEXIbase']
         self.satCache = Folders['satCache']
+        self.modCache = Folders['modCache']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
 #        self.productID = meta.LANDSAT_PRODUCT_ID
@@ -212,7 +213,9 @@ class ALEXI:
         d = datetime.strptime('%s%s' % (self.landsatDate,self.landsatTime),'%Y-%m-%d%H:%M:%S.%f')
         self.hr = d.hour #UTC
         self.year = d.year
-        self.inputET = inputET
+        self.inputET = os.path.join(self.modCache,'ALEXI')
+#        self.inputET = inputET
+        
         
     def getALEXIdata(self,ALEXIgeodict,isUSA):       
         #ALEXI input info
@@ -632,7 +635,10 @@ class MET:
             reparsed = minidom.parseString(rough_string) #mini as minidom
             return '\n'.join([line for line in reparsed.toprettyxml(indent=' '*2).split('\n') if line.strip()]) 
 #====convert NETCDF data to VRTs===============================================
-        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
+        gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
+        if not os.path.exists(gsip_path):
+            os.mkdir(gsip_path)
+        gsip_fn = glob.glob(os.path.join(gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
         layers = ["flux_swd_sfc","latitude-pc","longitude-pc"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
@@ -657,7 +663,10 @@ class MET:
                 outds = None
         #=======Daily GSIP====================================================      
 #        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
-        gsip_fn = glob.glob(os.path.join(self.gsip_path, "%d" % self.year,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+        gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
+        if not os.path.exists(gsip_path):
+            os.mkdir(gsip_path)
+        gsip_fn = glob.glob(os.path.join(gsip_path,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
         layers = ["insolation"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)

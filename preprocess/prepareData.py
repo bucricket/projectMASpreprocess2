@@ -18,15 +18,27 @@ from processlst import processlst
 from getlandsatdata import getlandsatdata
 import pandas as pd
 import sqlite3
+from os import walk
+import shutil
 
 
 #===set golbal paths===========================================================
 base = os.getcwd()
 cacheDir = os.path.abspath(os.path.join(base,os.pardir,"SATELLITE_DATA"))
+model_cache = os.path.abspath(os.path.join(base,os.pardir,"MODEL_DATA"))
 Folders = folders(base)  
 ALEXIbase = Folders['ALEXIbase']
 metBase = Folders['metBase']
 landsatDataBase = Folders['landsatDataBase']
+
+def moveFiles(top_path,dst_path,ext):           
+    for root, dirs, files in os.walk(top_path):
+        for file in files:
+            if file.endswith(ext):            
+                 srccpy = os.path.join(root, file)
+                 dstcpy = os.path.join(dst_path,file)
+                 if not os.path.exists(dstcpy):
+                     shutil.copy(srccpy,dstcpy)
 
 def prepare_data(fn,session,isUSA,LCpath,ETpath):
     
@@ -140,7 +152,8 @@ def main():
     parser.add_argument("isUSA", type=float, help="USA=1, non-USA=0")
     parser.add_argument("start_date", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
-    parser.add_argument("ET_dir", type=str, help="ALEXI ET directory")
+    parser.add_argument("ET_dir", type=str, help="ALEXI ET top directory")
+    parser.add_argument("Insol_dir", type=str, help="Insolation top directory")
     parser.add_argument("LC_dir", type=str, help="Landcover directory")
     parser.add_argument("cloud", type=int, help="cloud cover")
     parser.add_argument("collection", type=int,nargs='?', default=1)
@@ -151,11 +164,23 @@ def main():
     start_date = args.start_date
     end_date = args.end_date
     ET_dir = args.ET_dir
+    Insol_dir = args.Insol_dir
     LC_dir = args.LC_dir
     cloud = args.cloud
     sat = args.sat
     collection = args.collection
-      
+    #=======copy ALEXI ET and Insol files to central cache=====================
+    ext = ".tif"
+    dst_path = os.path.join(model_cache,"ALEXI")
+    if not os.path.exists(dst_path):
+            os.mkdir(dst_path)
+    moveFiles(ET_dir,dst_path,ext)
+    ext = ".gz"
+    dst_path = os.path.join(cacheDir,"GSIP")
+    if not os.path.exists(dst_path):
+            os.mkdir(dst_path)
+    moveFiles(Insol_dir,dst_path,ext)
+     
      # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
     if keyring.get_password("nasa",earth_user)==None:
@@ -211,7 +236,7 @@ def main():
         out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
         fn = os.path.join(out_df.local_file_path[0],productID+"_MTL.txt")
         print fn
-        prepare_data(fn,session,isUSA,LC_dir,ET_dir)
+        prepare_data(fn,session,isUSA,LC_dir)
     
     #===process Landsat LST====================================================
     print("processing LST...")
