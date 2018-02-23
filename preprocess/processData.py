@@ -638,7 +638,7 @@ class MET:
         gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
         if not os.path.exists(gsip_path):
             os.mkdir(gsip_path)
-        gsip_fn = glob.glob(os.path.join(gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
+        gsip_fn = glob.glob(os.path.join(gsip_path,'*gsipL2_met10_MSGFD_%s_%d30.nc.gz' % (date,self.hr)))[0]
         layers = ["flux_swd_sfc","latitude-pc","longitude-pc"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
@@ -666,7 +666,7 @@ class MET:
         gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
         if not os.path.exists(gsip_path):
             os.mkdir(gsip_path)
-        gsip_fn = glob.glob(os.path.join(gsip_path,'*.gsipL3_global_GDA_%s.nc.gz' % date))[0]
+        gsip_fn = glob.glob(os.path.join(gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]
         layers = ["insolation"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
