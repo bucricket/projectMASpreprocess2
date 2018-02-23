@@ -666,10 +666,6 @@ class MET:
                                                                          multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
-                        self.ulLat = meta.CORNER_UL_LAT_PRODUCT
-        self.ulLon = meta.CORNER_UL_LON_PRODUCT
-        self.lrLat = meta.CORNER_LR_LAT_PRODUCT
-        self.lrLon = meta.CORNER_LR_LON_PRODUCT
         #=======Daily GSIP====================================================      
 #        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
 #        gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
