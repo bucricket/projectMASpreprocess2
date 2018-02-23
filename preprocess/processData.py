@@ -542,7 +542,7 @@ class MET:
             shutil.rmtree(dailyPath)
             
     def getGSIP(self):
-        doy = (self.d-datetime(self.year,12,31)).days
+        doy = (self.d-datetime(self.year-1,12,31)).days
         date = '%d%03d' % (self.year,doy)
     #=======================GSIP daily insolation==============================
         def gunzip(fn, *positional_parameters, **keyword_parameters):
