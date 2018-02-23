@@ -663,6 +663,7 @@ class MET:
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          xRes=30.0, yRes=30.0, multithread=True))
                 outds = None
+                os.remove(netcdf_fn)
         #=======Daily GSIP====================================================      
 #        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*.gsipL3_met10_%s_%d30.nc.gz' % (date,self.hr)))[0]
 #        gsip_path = os.path.join(self.gsip_path, "%d" % self.year) 
@@ -691,3 +692,4 @@ class MET:
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          xRes=30.0, yRes=30.0, multithread=True))
                 outds = None
+                os.remove(netcdf_fn)
