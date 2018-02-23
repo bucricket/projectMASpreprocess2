@@ -84,7 +84,7 @@ def prepare_data(fn,session,isUSA,LCpath):
     outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'get->ALEXI ET...'
-        a = ALEXI(fn,)
+        a = ALEXI(fn)
         a.getALEXIdata(ALEXIgeodict,isUSA)
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
     
@@ -117,7 +117,8 @@ def prepare_data(fn,session,isUSA,LCpath):
     outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
     if not os.path.exists(outFN):
         a = MET(fn,session)
-        a.getInsolation()
+#        a.getInsolation()
+        a.getGSIP()
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
         processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
     
