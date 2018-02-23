@@ -303,7 +303,7 @@ class MET:
         else:
             self.sat = 8  
         satscene_path = os.path.join(self.satCache,"LANDSAT","L%d" % self.sat,self.scene)
-        self.gsip_path = satscene_path = os.path.join(self.satCache,"GSIP")
+        self.gsip_path = os.path.join(self.satCache,"GSIP")
         if not os.path.exists(self.gsip_path):
             os.mkdir(self.gsip_path)
         self.met_path = os.path.join(satscene_path,"MET")
