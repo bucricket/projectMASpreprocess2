@@ -663,7 +663,7 @@ class MET:
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
-                                                                         xRes=30.0, yRes=30.0, multithread=True))
+                                                                         multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
         #=======Daily GSIP====================================================      
@@ -694,6 +694,6 @@ class MET:
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
-                                                                         xRes=30.0, yRes=30.0, multithread=True))
+                                                                         multithread=True))
                 outds = None
                 os.remove(netcdf_fn)
