@@ -40,11 +40,11 @@ def moveFiles(top_path,dst_path,ext):
                  if not os.path.exists(dstcpy):
                      shutil.copy(srccpy,dstcpy)
 
-def prepare_data(fn,session,isUSA,LCpath,ETpath):
+def prepare_data(fn,session,isUSA,LCpath):
     
 
     LCpath = LCpath
-    ETpath = ETpath
+#    ETpath = ETpath
     meta = landsat_metadata(fn)
     if meta.SPACECRAFT_ID == 'LANDSAT_7':        
         sat = 7
@@ -84,7 +84,7 @@ def prepare_data(fn,session,isUSA,LCpath,ETpath):
     outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'get->ALEXI ET...'
-        a = ALEXI(fn,ETpath)
+        a = ALEXI(fn,)
         a.getALEXIdata(ALEXIgeodict,isUSA)
         processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
     
