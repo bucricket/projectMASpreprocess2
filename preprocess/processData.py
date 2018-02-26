@@ -640,7 +640,12 @@ class MET:
 #            os.mkdir(gsip_path)
         gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
         print(gsip_path)
-        gsip_fn = glob.glob(gsip_path)[0]
+        
+        try:
+            gsip_fn = glob.glob(gsip_path)[0]    
+        except ValueError:
+            print "You need to download gsipL2_met10_MSGFD data"
+            exit
         layers = ["flux_swd_sfc","pixel_latitude","pixel_longitude"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
@@ -701,7 +706,11 @@ class MET:
 
 
         inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]
+        try:
+            gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]    
+        except ValueError:
+            print "You need to download gsipL3_global_GDA data"
+            exit
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
             tif_fn = gsip_fn[:-5]+'tif' 
