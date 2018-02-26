@@ -672,30 +672,50 @@ class MET:
 #        if not os.path.exists(gsip_path):
 #            os.mkdir(gsip_path)
 
+#        gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]
+#        layers = ["insolation","latitude","longitude"]
+#        if os.path.exists(gsip_fn):
+#            gunzip(gsip_fn)
+#            netcdf_fn = gsip_fn[:-3]
+#            outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
+#            if not os.path.exists(outFN):
+#                fns = []
+#                for layer in layers:
+#                    raw_fn = 'NETCDF:%s:%s'  % (netcdf_fn,layer)  
+#                    vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layer)
+#                    outds = gdal.Open(raw_fn)
+#                    outds = gdal.Translate(vrt_fn, outds,options=gdal.TranslateOptions(format="VRT"))
+#                    outds = None
+#                    fns.append(vrt_fn)
+#                addGeoloc(fns[0],fns[1],fns[2])
+#                vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
+#                in_ds = gdal.Open(vrt_fn)
+#                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
+#                                                                         dstSRS="EPSG:4326",
+#                                                                         outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
+#                                                                         width=self.ncol,
+#                                                                         height=self.nrow,
+#                                                                         multithread=True))
+#                outds = None
+#            os.remove(netcdf_fn)
+
+
+        inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]
-        layers = ["insolation","latitude","longitude"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
-            netcdf_fn = gsip_fn[:-3]
+            tif_fn = gsip_fn[:-5]+'tif' 
+            nc_fn = 'NETCDF:"%s":insolation' % gsip_fn[:-3]
+            if not os.path.exists(tif_fn):
+                ds = gdal.Open(nc_fn)
+                aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
+                writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
             outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
             if not os.path.exists(outFN):
-                fns = []
-                for layer in layers:
-                    raw_fn = 'NETCDF:%s:%s'  % (netcdf_fn,layer)  
-                    vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layer)
-                    outds = gdal.Open(raw_fn)
-                    outds = gdal.Translate(vrt_fn, outds,options=gdal.TranslateOptions(format="VRT"))
-                    outds = None
-                    fns.append(vrt_fn)
-                addGeoloc(fns[0],fns[1],fns[2])
-                vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
-                in_ds = gdal.Open(vrt_fn)
+                in_ds = gdal.Open(tif_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
                                                                          dstSRS="EPSG:4326",
                                                                          outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          multithread=True))
-                outds = None
-            os.remove(netcdf_fn)
-
