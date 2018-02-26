@@ -617,7 +617,7 @@ class MET:
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
             netcdf_fn = gsip_fn[:-3]
-            outFN = os.path.join(self.insol_path,'%s_Insol1Sub.tiff' % self.sceneID)
+            outFN = os.path.join(self.insol_path,'%s_Insol1.tiff' % self.sceneID)
             if not os.path.exists(outFN):
                 fns = []
                 for layer in layers:
@@ -654,7 +654,7 @@ class MET:
                 ds = gdal.Open(nc_fn)
                 aa = ds.GetRasterBand(1).ReadAsArray()*0.042727217           
                 writeArray2Tiff(aa,[0.05,0.05],[-180.,90.],inProjection,tif_fn,gdal.GDT_Float32)
-            outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
+            outFN = os.path.join(self.insol_path,'%s_Insol24.tiff' % self.sceneID)
             if not os.path.exists(outFN):
                 in_ds = gdal.Open(tif_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
