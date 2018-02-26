@@ -86,7 +86,7 @@ def prepare_data(fn,session,isUSA,LCpath):
         print 'get->ALEXI ET...'
         a = ALEXI(fn)
         a.getALEXIdata(ALEXIgeodict,isUSA)
-        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
+    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
     
     #=====prepare MET data=====================================================    
 #    sceneDir = os.path.join(metBase,'%s' % scene)
@@ -103,10 +103,10 @@ def prepare_data(fn,session,isUSA,LCpath):
         print 'get->MET data...'
         a = MET(fn,session)
         a.getCFSR()
-        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'SFC_PRESS')
-        processlai.updateLandsatProductsDB(output_df,outFNu,landsatCacheDir,'WIND')
-        processlai.updateLandsatProductsDB(output_df,outFNta,landsatCacheDir,'TA')
-        processlai.updateLandsatProductsDB(output_df,outFNq2,landsatCacheDir,'Q2')
+    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'SFC_PRESS')
+    processlai.updateLandsatProductsDB(output_df,outFNu,landsatCacheDir,'WIND')
+    processlai.updateLandsatProductsDB(output_df,outFNta,landsatCacheDir,'TA')
+    processlai.updateLandsatProductsDB(output_df,outFNq2,landsatCacheDir,'Q2')
     
     #====prepare insolation====================================================
     sceneDir = os.path.join(satscene_path,'INSOL')
@@ -119,8 +119,8 @@ def prepare_data(fn,session,isUSA,LCpath):
         a = MET(fn,session)
 #        a.getInsolation()
         a.getGSIP()
-        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
-        processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
+    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
+    processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
     
     #=====prepare biophysical parameters at overpass time======================
 #    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
@@ -132,7 +132,7 @@ def prepare_data(fn,session,isUSA,LCpath):
         print 'processing : albedo...' 
         a = Landsat(fn,LCpath)
         a.getAlbedo()
-        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALBEDO')
+    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALBEDO')
 
     
 #    sceneDir = os.path.join(landsatDataBase,'LC',scene)
@@ -143,7 +143,7 @@ def prepare_data(fn,session,isUSA,LCpath):
     if not os.path.exists(outFN):
         a = Landsat(fn,LCpath)
         a.getLC(landcover)
-        processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'LC')
+    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'LC')
 
 def main():    
     # Get time and location from user
