@@ -713,7 +713,7 @@ class MET:
             outFN = os.path.join(self.insol_path,'%s_Insol24Sub.tiff' % self.sceneID)
             if not os.path.exists(outFN):
                 in_ds = gdal.Open(tif_fn)
-                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
+                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
                                                                          dstSRS="EPSG:4326",
                                                                          outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
                                                                          width=self.ncol,
