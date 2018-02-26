@@ -24,6 +24,7 @@ from xml.dom import minidom
 from xml.etree.ElementTree import parse, Element, SubElement, tostring
 import glob
 import gzip
+import sys
 
 
 def tile2latlon(tile):
@@ -644,8 +645,8 @@ class MET:
         try:
             gsip_fn = glob.glob(gsip_path)[0]    
         except IndexError:
-            print "You need to download gsipL2_met10_MSGFD data"
-            exit
+            print "You need to download gsipL2_met10_MSGFD data.\n"
+            sys.exit(1)
         layers = ["flux_swd_sfc","pixel_latitude","pixel_longitude"]
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
@@ -709,8 +710,8 @@ class MET:
         try:
             gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]    
         except IndexError:
-            print "You need to download gsipL3_global_GDA data"
-            exit
+            print "You need to download gsipL3_global_GDA data.\n"
+            sys.exit(1)
         if os.path.exists(gsip_fn):
             gunzip(gsip_fn)
             tif_fn = gsip_fn[:-5]+'tif' 
