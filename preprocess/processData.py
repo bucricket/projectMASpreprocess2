@@ -643,7 +643,7 @@ class MET:
         
         try:
             gsip_fn = glob.glob(gsip_path)[0]    
-        except ValueError:
+        except IndexError:
             print "You need to download gsipL2_met10_MSGFD data"
             exit
         layers = ["flux_swd_sfc","pixel_latitude","pixel_longitude"]
@@ -708,7 +708,7 @@ class MET:
         inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         try:
             gsip_fn = glob.glob(os.path.join(self.gsip_path,'*gsipL3_global_GDA_%s.nc.gz' % date))[0]    
-        except ValueError:
+        except IndexError:
             print "You need to download gsipL3_global_GDA data"
             exit
         if os.path.exists(gsip_fn):
