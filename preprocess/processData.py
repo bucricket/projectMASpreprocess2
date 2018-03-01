@@ -631,8 +631,8 @@ class MET:
                 vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
                 in_ds = gdal.Open(vrt_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
-                                                                         dstSRS="EPSG:4326",
-                                                                         outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
+                                                                         dstSRS=self.proj4,
+                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          multithread=True))
@@ -658,8 +658,8 @@ class MET:
             if not os.path.exists(outFN):
                 in_ds = gdal.Open(tif_fn)
                 outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
-                                                                         dstSRS="EPSG:4326",
-                                                                         outputBounds=(self.ulLon,self.lrLat,self.lrLon,self.ulLat),
+                                                                         dstSRS=self.proj4,
+                                                                         outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          multithread=True))
