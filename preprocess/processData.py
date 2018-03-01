@@ -637,6 +637,7 @@ class MET:
                                                                          height=self.nrow,
                                                                          multithread=True))
                 outds = None
+                in_ds=None
             os.remove(netcdf_fn)
         #=======Daily GSIP====================================================      
         inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
