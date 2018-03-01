@@ -631,8 +631,8 @@ class MET:
                 vrt_fn = os.path.join(os.getcwd(),'%s.vrt'% layers[0])                
                 vrt_ds = gdal.Open(vrt_fn)
                 int_fn = 'intFn.tif'
-                in_ds = gdal.Warp(int_fn, vrt_ds,options=gdal.WarpOptions(dstSRS="EPSG:4326"))
-                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',geoloc=True,
+                in_ds = gdal.Warp(int_fn, vrt_ds,options=gdal.WarpOptions(dstSRS="EPSG:4326",geoloc=True))
+                outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
                                                                          dstSRS=self.proj4,
                                                                          outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
                                                                          width=self.ncol,
