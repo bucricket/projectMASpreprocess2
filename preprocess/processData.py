@@ -606,7 +606,7 @@ class MET:
         
         #==============GSIP hourly insolation==================================
         gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
-        
+        print("HR:%d" % self.hr )
         try:
             gsip_fn = glob.glob(gsip_path)[0]    
         except IndexError:
