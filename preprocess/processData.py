@@ -542,7 +542,7 @@ class MET:
             warp(optionList)
             shutil.rmtree(dailyPath)
             
-    def getGSIP(self):
+    def getGSIP(self,platform):
         doy = (self.d-datetime(self.year-1,12,31)).days
         date = '%d%03d' % (self.year,doy)
         
@@ -605,13 +605,14 @@ class MET:
             return '\n'.join([line for line in reparsed.toprettyxml(indent=' '*2).split('\n') if line.strip()]) 
         
         #==============GSIP hourly insolation==================================
-        gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
+#        gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
+        gsip_path = os.path.join(self.gsip_path,'*gsipL2_%s*_%s_%02d30.nc.gz' % (platform,date,self.hr))
         print("HR:%d" % self.hr )
         try:
             gsip_fn = glob.glob(gsip_path)[0]    
         except IndexError:
             print("\n")
-            print("IO ERROR: You need to download gsipL2_met10_MSGFD data.\n")
+            print("IO ERROR: You need to download gsip data.\n")
             sys.exit(1)
         layers = ["flux_swd_sfc","pixel_latitude","pixel_longitude"]
         if os.path.exists(gsip_fn):
