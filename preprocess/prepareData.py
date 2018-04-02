@@ -194,7 +194,6 @@ def main():
         if not os.path.exists(dst_path):
                 os.mkdir(dst_path)
         moveFiles(Insol_dir,dst_path,ext)
-        insolpath = os.ath.join(dst_path,)
      
      # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
