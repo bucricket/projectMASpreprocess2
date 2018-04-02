@@ -40,7 +40,7 @@ def moveFiles(top_path,dst_path,ext):
                  if not os.path.exists(dstcpy):
                      shutil.copy(srccpy,dstcpy)
 
-def prepare_data(fn,session,isUSA,LCpath):
+def prepare_data(fn,session,isUSA,LCpath,insolDataset):
     
 
     LCpath = LCpath
@@ -118,7 +118,10 @@ def prepare_data(fn,session,isUSA,LCpath):
     if not os.path.exists(outFN):
         a = MET(fn,session)
 #        a.getInsolation()
-        a.getGSIP()
+        if insolDataset =='GSIP':
+            a.getGSIP()
+        else:
+            a.getCERESinsol()
     processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
     processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
     
@@ -155,11 +158,11 @@ def main():
     parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("LC_dir", type=str, help="Landcover directory")
     parser.add_argument("cloud", type=int, help="cloud cover")
+    parser.add_argument("insolDataset", type=str, help="insolation dataset: CERES or GSIP")
     dst_path = os.path.join(model_cache,"ALEXI")
     parser.add_argument("--ET_dir", type=str,default=dst_path,help="ALEXI ET top directory")
     dst_path = os.path.join(cacheDir,"GSIP")
     parser.add_argument("--Insol_dir", type=str,default=dst_path,help="Insolation top directory")
-    parser.add_argument("collection", type=int,nargs='?', default=1)
     parser.add_argument('-s','--sat', nargs='?',type=int, default=8, help='which landsat to search or download, i.e. Landsat 8 = 8')
     args = parser.parse_args()
     loc = [args.lat,args.lon] 
@@ -171,18 +174,27 @@ def main():
     LC_dir = args.LC_dir
     cloud = args.cloud
     sat = args.sat
-    collection = args.collection
+    insolDataset = args.insolDataset
+    
     #=======copy ALEXI ET and Insol files to central cache=====================
     ext = ".tif"
     dst_path = os.path.join(model_cache,"ALEXI")
     if not os.path.exists(dst_path):
             os.mkdir(dst_path)
     moveFiles(ET_dir,dst_path,ext)
-    ext = ".gz"
-    dst_path = os.path.join(cacheDir,"GSIP")
-    if not os.path.exists(dst_path):
-            os.mkdir(dst_path)
-    moveFiles(Insol_dir,dst_path,ext)
+    if insolDataset == 'GSIP':
+        ext = ".gz"
+        dst_path = os.path.join(cacheDir,"GSIP")
+        if not os.path.exists(dst_path):
+                os.mkdir(dst_path)
+        moveFiles(Insol_dir,dst_path,ext)
+    else:
+        ext = ".nc"
+        dst_path = os.path.join(cacheDir,"CERES")
+        if not os.path.exists(dst_path):
+                os.mkdir(dst_path)
+        moveFiles(Insol_dir,dst_path,ext)
+        insolpath = os.ath.join(dst_path,)
      
      # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
@@ -239,7 +251,7 @@ def main():
         out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
         fn = os.path.join(out_df.local_file_path[0],productID+"_MTL.txt")
         print fn
-        prepare_data(fn,session,isUSA,LC_dir)
+        prepare_data(fn,session,isUSA,LC_dir,insolDataset)
     
     #===process Landsat LST====================================================
     print("processing LST...")

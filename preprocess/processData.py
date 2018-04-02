@@ -25,6 +25,7 @@ from xml.etree.ElementTree import parse, Element, SubElement, tostring
 import glob
 import gzip
 import sys
+import xarray as xr
 
 
 def tile2latlon(tile):
@@ -668,3 +669,70 @@ class MET:
                                                                          width=self.ncol,
                                                                          height=self.nrow,
                                                                          multithread=True))
+    def getCERESinsol(self):
+        
+        #=======hourly insolation===================
+        outFN = os.path.join(self.insol_path,'%s_Insol1.tiff' % self.sceneID)
+        if not os.path.exists(outFN):
+            #====open netcdf file===============
+#            fn = 'CERES_SYN1deg-1H_Terra-NPP_Ed1A_Subset_20140101-20150131.nc'
+            fn = glob.glob("CERES*1H*%d*" % self.year)[0]
+            ds = xr.open_dataset(fn)
+            #====open dataset=================
+            ddd = ds.adj_sfc_sw_direct_clr_1h
+            dlon = ds.lon
+            dlat = ds.lat
+            data = np.squeeze(ddd.sel(time='%d-%02d-%02dT%02d' % (self.year,self.month,self.day,self.hr)).values)
+            lon = np.squeeze(dlon.values)
+            lat = np.squeeze(dlat.values)
+            lon[lon>180]=lon-360
+            ULlon = lon.min()
+            ULlat = lat.max()
+            
+            inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+            res = [1.0,-1.0]
+            inUL = [ULlon,ULlat]
+            outfile = 'CERES_insol_1.tif'
+            writeArray2Tiff(data,res,inUL,inProjection,outfile,gdal.GDT_Float32)
+            in_ds = gdal.Open(outfile)
+            outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
+                                                                     dstSRS=self.proj4,
+                                                                     outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                     width=self.ncol,
+                                                                     height=self.nrow,
+                                                                     multithread=True))
+            in_ds=None
+            os.remove(outfile)
+            
+        #=======Daily insolation===================
+        outFN = os.path.join(self.insol_path,'%s_Insol24.tiff' % self.sceneID)
+        if not os.path.exists(outFN):
+            #====open netcdf file===============
+#            fn = 'CERES_SYN1deg-1H_Terra-NPP_Ed1A_Subset_20140101-20150131.nc'
+            fn = glob.glob("CERES*Day*%d*" % self.year)[0]
+            ds = xr.open_dataset(fn)
+            #====open dataset=================
+            ddd = ds.adj_sfc_sw_direct_clr_1h
+            dlon = ds.lon
+            dlat = ds.lat
+            data = np.squeeze(ddd.sel(time='%d-%02d-%02d' % (self.year,self.month,self.day)).values)
+            lon = np.squeeze(dlon.values)
+            lat = np.squeeze(dlat.values)
+            lon[lon>180]=lon-360
+            ULlon = lon.min()
+            ULlat = lat.max()
+            
+            inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+            res = [1.0,-1.0]
+            inUL = [ULlon,ULlat]
+            outfile = 'CERES_insol_24.tif'
+            writeArray2Tiff(data,res,inUL,inProjection,outfile,gdal.GDT_Float32)
+            in_ds = gdal.Open(outfile)
+            outds = gdal.Warp(outFN, in_ds,options=gdal.WarpOptions(resampleAlg='bilinear',
+                                                                     dstSRS=self.proj4,
+                                                                     outputBounds=(self.ulx,self.lry,self.lrx,self.uly),
+                                                                     width=self.ncol,
+                                                                     height=self.nrow,
+                                                                     multithread=True))
+            in_ds=None
+            os.remove(outfile)
