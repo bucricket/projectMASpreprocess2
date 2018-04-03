@@ -697,7 +697,7 @@ class MET:
             data = np.squeeze(ddd.sel(time='%d-%02d-%02dT%02d' % (self.year,self.month,self.day,self.hr)).values)
             lon = np.squeeze(dlon.values)
             lat = np.squeeze(dlat.values)
-            lon[lon>180]=lon-360
+            lon=lon-360
             ULlon = lon.min()
             ULlat = lat.max()
             
@@ -739,12 +739,12 @@ class MET:
             data = np.squeeze(ddd.sel(time='%d-%02d-%02d' % (self.year,self.month,self.day)).values)
             lon = np.squeeze(dlon.values)
             lat = np.squeeze(dlat.values)
-            lon[lon>180]=lon-360
+            lon=lon-360
             ULlon = lon.min()
             ULlat = lat.max()
             
             inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-            res = [1.0,-1.0]
+            res = [1.0,1.0]
             inUL = [ULlon,ULlat]
             outfile = 'CERES_insol_24.tif'
             writeArray2Tiff(data,res,inUL,inProjection,outfile,gdal.GDT_Float32)
