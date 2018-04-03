@@ -714,6 +714,7 @@ class MET:
                                                                      height=self.nrow,
                                                                      multithread=True))
             in_ds=None
+            outds = None
             os.remove(outfile)
             
         #=======Daily insolation===================
@@ -755,4 +756,5 @@ class MET:
                                                                      height=self.nrow,
                                                                      multithread=True))
             in_ds=None
+            outds = None
             os.remove(outfile)
