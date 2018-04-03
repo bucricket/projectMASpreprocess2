@@ -78,7 +78,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
 #    sceneDir = os.path.join(ALEXIbase,'%s' % scene) 
     sceneDir = os.path.join(satscene_path,'ET','400m')   
     if not os.path.exists(sceneDir):
-        os.mkdir(sceneDir)     
+        os.makedirs(sceneDir)     
     
 #    outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID) 
@@ -92,7 +92,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
 #    sceneDir = os.path.join(metBase,'%s' % scene)
     sceneDir = os.path.join(satscene_path,'MET')
     if not os.path.exists(sceneDir):
-        os.mkdir(sceneDir) 
+        os.makedirs(sceneDir) 
     
 #    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
@@ -111,7 +111,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
     #====prepare insolation====================================================
     sceneDir = os.path.join(satscene_path,'INSOL')
     if not os.path.exists(sceneDir):
-        os.mkdir(sceneDir) 
+        os.makedirs(sceneDir) 
 #    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
     outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)
     outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
@@ -129,7 +129,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
 #    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
     sceneDir = os.path.join(satscene_path,'ALBEDO')
     if not os.path.exists(sceneDir):
-        os.mkdir(sceneDir) 
+        os.makedirs(sceneDir) 
     outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
     if not os.path.exists(outFN):
         print 'processing : albedo...' 
@@ -141,7 +141,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
 #    sceneDir = os.path.join(landsatDataBase,'LC',scene)
     sceneDir = os.path.join(satscene_path,'LC')
     if not os.path.exists(sceneDir):
-        os.mkdir(sceneDir) 
+        os.makedirs(sceneDir) 
     outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
     if not os.path.exists(outFN):
         a = Landsat(fn,LCpath)
@@ -186,13 +186,13 @@ def main():
         ext = ".gz"
         dst_path = os.path.join(cacheDir,"GSIP")
         if not os.path.exists(dst_path):
-                os.mkdir(dst_path)
+                os.makedirs(dst_path)
         moveFiles(Insol_dir,dst_path,ext)
     else:
         ext = ".nc"
         dst_path = os.path.join(cacheDir,"CERES")
         if not os.path.exists(dst_path):
-                os.mkdir(dst_path)
+                os.makedirs(dst_path)
         moveFiles(Insol_dir,dst_path,ext)
      
      # =====earthData credentials==============================================
