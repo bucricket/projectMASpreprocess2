@@ -308,6 +308,9 @@ class MET:
         self.gsip_path = os.path.join(self.satCache,"GSIP")
         if not os.path.exists(self.gsip_path):
             os.mkdir(self.gsip_path)
+        self.ceres_path = os.path.join(self.satCache,"CERES")
+        if not os.path.exists(self.ceres_path):
+            os.mkdir(self.ceres_path)
         self.met_path = os.path.join(satscene_path,"MET")
         if not os.path.exists(self.met_path):
             os.mkdir(self.met_path)
@@ -676,8 +679,16 @@ class MET:
         if not os.path.exists(outFN):
             #====open netcdf file===============
 #            fn = 'CERES_SYN1deg-1H_Terra-NPP_Ed1A_Subset_20140101-20150131.nc'
-            fn = glob.glob("CERES*1H*%d*" % self.year)[0]
-            ds = xr.open_dataset(fn)
+            ceres_path = os.path.join(self.ceres_path,"CERES*1H*%d*" % self.year)
+            print("HR:%d" % self.hr )
+            try:
+                ceres_fn = glob.glob(ceres_path)[0]    
+            except IndexError:
+                print("\n")
+                print("IO ERROR: You need to download CERES data.\n")
+                sys.exit(1)
+
+            ds = xr.open_dataset(ceres_fn)
             #====open dataset=================
             ddd = ds.adj_sfc_sw_direct_clr_1h
             dlon = ds.lon
