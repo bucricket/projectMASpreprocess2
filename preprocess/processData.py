@@ -253,8 +253,8 @@ class ALEXI:
 #                inUL = [ULlon[i],ULlat[i]]
 #                ETdata = os.path.join(self.inputET,
 #                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
-                ETdata = os.path.join(self.inputET,
-                                      'FINAL_EDAY_%s_T%03d.tif' % (int(self.sceneID[9:16]),tile_num[i]))
+                ETdata = glob.glob(os.path.join(self.inputET,
+                                      'FINAL_EDAY_*%s_T%03d.tif' % (int(self.sceneID[9:16]),tile_num[i])))[0]
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 if not os.path.exists(os.path.join(ETtemp,localETpath)):
                     if not os.path.exists(ETdata):
