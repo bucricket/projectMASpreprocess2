@@ -720,8 +720,16 @@ class MET:
         if not os.path.exists(outFN):
             #====open netcdf file===============
 #            fn = 'CERES_SYN1deg-1H_Terra-NPP_Ed1A_Subset_20140101-20150131.nc'
-            fn = glob.glob("CERES*Day*%d*" % self.year)[0]
-            ds = xr.open_dataset(fn)
+#            fn = glob.glob("CERES*Day*%d*" % self.year)[0]
+            ceres_path = os.path.join(self.ceres_path,"CERES*Day*%d*" % self.year)
+            print("HR:%d" % self.hr )
+            try:
+                ceres_fn = glob.glob(ceres_path)[0]    
+            except IndexError:
+                print("\n")
+                print("IO ERROR: You need to download CERES data.\n")
+                sys.exit(1)
+            ds = xr.open_dataset(ceres_fn)
             #====open dataset=================
             ddd = ds.adj_sfc_sw_direct_clr_1h
             dlon = ds.lon
