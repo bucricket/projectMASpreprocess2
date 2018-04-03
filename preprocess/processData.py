@@ -732,7 +732,7 @@ class MET:
                 sys.exit(1)
             ds = xr.open_dataset(ceres_fn)
             #====open dataset=================
-            ddd = ds.adj_sfc_sw_direct_clr_1h
+            ddd = ds.adj_sfc_sw_direct_clr_daily
             dlon = ds.lon
             dlat = ds.lat
             data = np.squeeze(ddd.sel(time='%d-%02d-%02d' % (self.year,self.month,self.day)).values)
