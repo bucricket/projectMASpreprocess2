@@ -145,8 +145,7 @@ class Landsat(object):
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
         '-ts', '%f' % self.ncol, '%f' % self.nrow,'-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
-        if os.path.exists(LCtemp):
-            shutil.rmtree(LCtemp)
+
         
 
 
