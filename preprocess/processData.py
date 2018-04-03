@@ -715,7 +715,7 @@ class MET:
                                                                      multithread=True))
             in_ds=None
             outds = None
-            os.remove(outfile)
+#            os.remove(outfile)
             
         #=======Daily insolation===================
         outFN = os.path.join(self.insol_path,'%s_Insol24.tiff' % self.sceneID)
@@ -757,4 +757,4 @@ class MET:
                                                                      multithread=True))
             in_ds=None
             outds = None
-            os.remove(outfile)
+#            os.remove(outfile)
