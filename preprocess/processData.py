@@ -702,7 +702,7 @@ class MET:
             ULlat = lat.max()
             
             inProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-            res = [1.0,-1.0]
+            res = [1.0,1.0]
             inUL = [ULlon,ULlat]
             outfile = 'CERES_insol_1.tif'
             writeArray2Tiff(data,res,inUL,inProjection,outfile,gdal.GDT_Float32)
