@@ -67,53 +67,53 @@ def searchLandsatSceneID(sceneID,db_path,sat):
     conn.close()
     return output
 
-def updateLandsatProductsDB(cacheDir,product,topDir):
-    
-    if product == 'LST':
-        product_name = 'lstSharp'
-    elif product == 'LAI':
-        product_name = 'lai'
-    elif product == 'ALBEDO':
-        product_name = 'albedo'
-    elif product == 'CF_MASK':
-        product_name = 'Mask'
-    elif product == 'INSOL1':
-        product_name = 'Insol1'    
-    elif product == 'INSOL24':
-        product_name = 'Insol24'    
-    elif product == 'LC':
-        product_name = 'LC'    
-    elif product == 'SFC_PRESS':
-        product_name = 'p'      
-    elif product == 'WIND':
-        product_name = 'u' 
-    elif product == 'TA':
-        product_name = 'Ta' 
-    elif product == 'Q2':
-        product_name = 'q2'     
-    elif product == 'NDVI':
-        product_name = 'ndvi'
-    elif product == 'ALEXI_ET':
-        product_name = 'alexiET'
+def updateLandsatProductsDB(cacheDir,product,fn):
+#    
+#    if product == 'LST':
+#        product_name = 'lstSharp'
+#    elif product == 'LAI':
+#        product_name = 'lai'
+#    elif product == 'ALBEDO':
+#        product_name = 'albedo'
+#    elif product == 'CF_MASK':
+#        product_name = 'Mask'
+#    elif product == 'INSOL1':
+#        product_name = 'Insol1'    
+#    elif product == 'INSOL24':
+#        product_name = 'Insol24'    
+#    elif product == 'LC':
+#        product_name = 'LC'    
+#    elif product == 'SFC_PRESS':
+#        product_name = 'p'      
+#    elif product == 'WIND':
+#        product_name = 'u' 
+#    elif product == 'TA':
+#        product_name = 'Ta' 
+#    elif product == 'Q2':
+#        product_name = 'q2'     
+#    elif product == 'NDVI':
+#        product_name = 'ndvi'
+#    elif product == 'ALEXI_ET':
+#        product_name = 'alexiET'
         
-    filenames =[] 
-    paths =[]    
-    for dirpath, dirnames, fns in os.walk(topDir):
-        try:
-            for filename in [f for f in fns if ((f.split("_")[1].split(".")[0] == "%s" % product_name) and f.endswith(".tiff"))]:
-                filenames.append(filename)
-                paths.append(os.path.join(dirpath,filename))
-        except:
-            pass
-            
-    landsatDB = pd.DataFrame()
-    for fn in filenames:
-        sceneID = fn.split("_")[0]
-        sat = sceneID[2]
-        landsatDB = landsatDB.append(searchLandsatSceneID(sceneID,cacheDir,sat),ignore_index=True)
+#    filenames =[] 
+#    paths =[]    
+#    for dirpath, dirnames, fns in os.walk(topDir):
+#        try:
+#            for filename in [f for f in fns if ((f.split("_")[1].split(".")[0] == "%s" % product_name) and f.endswith(".tiff"))]:
+#                filenames.append(filename)
+#                paths.append(os.path.join(dirpath,filename))
+#        except:
+#            pass
+#            
+#    landsatDB = pd.DataFrame()
+#    for fn in filenames:
+    sceneID = fn.split("_")[0]
+    sat = sceneID[2]
+    landsatDB = searchLandsatSceneID(sceneID,cacheDir,sat)
 
         
-    if not len(paths) == 0:
+    if not len(fn) == 0:
         db_fn = os.path.join(cacheDir,"landsat_products.db")
         
         date = landsatDB.acquisitionDate
@@ -129,7 +129,7 @@ def updateLandsatProductsDB(cacheDir,product,topDir):
                           "upperLeftCornerLongitude":ullon,
                           "lowerRightCornerLatitude":lllat,
                           "lowerRightCornerLongitude":lllon,
-                          "LANDSAT_PRODUCT_ID":productIDs,"filename":paths}
+                          "LANDSAT_PRODUCT_ID":productIDs,"filename":fn}
             landsat_df = pd.DataFrame.from_dict(landsat_dict)
             landsat_df.to_sql("%s" % product, conn, if_exists="replace", index=False)
             conn.close()
@@ -146,7 +146,7 @@ def updateLandsatProductsDB(cacheDir,product,topDir):
                           "upperLeftCornerLongitude":ullon,
                           "lowerRightCornerLatitude":lllat,
                           "lowerRightCornerLongitude":lllon,
-                          "LANDSAT_PRODUCT_ID":productIDs,"filename":paths}
+                          "LANDSAT_PRODUCT_ID":productIDs,"filename":fn}
             landsat_df = pd.DataFrame.from_dict(landsat_dict)
             orig_df = orig_df.append(landsat_df,ignore_index=True)
             orig_df = orig_df.drop_duplicates(keep='last')
@@ -200,7 +200,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
         a = ALEXI(fn)
         a.getALEXIdata(ALEXIgeodict,isUSA)
 #    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALEXI_ET')
-    updateLandsatProductsDB(landsatCacheDir,'ALEXI_ET',sceneDir)
+        updateLandsatProductsDB(landsatCacheDir,'ALEXI_ET',outFN)
     
     #=====prepare MET data=====================================================    
 #    sceneDir = os.path.join(metBase,'%s' % scene)
@@ -210,9 +210,9 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
     
 #    outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
     outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
-#    outFNu = os.path.join(sceneDir,'%s_u.tiff' % sceneID)
-#    outFNta = os.path.join(sceneDir,'%s_Ta.tiff' % sceneID)
-#    outFNq2 = os.path.join(sceneDir,'%s_q2.tiff' % sceneID)
+    outFNu = os.path.join(sceneDir,'%s_u.tiff' % sceneID)
+    outFNta = os.path.join(sceneDir,'%s_Ta.tiff' % sceneID)
+    outFNq2 = os.path.join(sceneDir,'%s_q2.tiff' % sceneID)
     if not os.path.exists(outFN):
         print 'get->MET data...'
         a = MET(fn,session)
@@ -222,10 +222,10 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
 #    processlai.updateLandsatProductsDB(output_df,outFNta,landsatCacheDir,'TA')
 #    processlai.updateLandsatProductsDB(output_df,outFNq2,landsatCacheDir,'Q2')
     
-    updateLandsatProductsDB(landsatCacheDir,'SFC_PRESS',sceneDir)
-    updateLandsatProductsDB(landsatCacheDir,'WIND',sceneDir)
-    updateLandsatProductsDB(landsatCacheDir,'TA',sceneDir)
-    updateLandsatProductsDB(landsatCacheDir,'Q2',sceneDir)
+        updateLandsatProductsDB(landsatCacheDir,'SFC_PRESS',outFN)
+        updateLandsatProductsDB(landsatCacheDir,'WIND',outFNu)
+        updateLandsatProductsDB(landsatCacheDir,'TA',outFNta)
+        updateLandsatProductsDB(landsatCacheDir,'Q2',outFNq2)
     
     #====prepare insolation====================================================
     sceneDir = os.path.join(satscene_path,'INSOL')
@@ -233,7 +233,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
         os.makedirs(sceneDir) 
 #    outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
     outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)
-#    outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
+    outFN24 = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
     if not os.path.exists(outFN):
         a = MET(fn,session)
 #        a.getInsolation()
@@ -243,8 +243,8 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
             a.getCERESinsol()
 #    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
 #    processlai.updateLandsatProductsDB(output_df,outFN24,landsatCacheDir,'INSOL24')
-    updateLandsatProductsDB(landsatCacheDir,'INSOL1',sceneDir)
-    updateLandsatProductsDB(landsatCacheDir,'INSOL24',sceneDir)
+        updateLandsatProductsDB(landsatCacheDir,'INSOL1',outFN)
+        updateLandsatProductsDB(landsatCacheDir,'INSOL24',outFN24)
     
     #=====prepare biophysical parameters at overpass time======================
 #    sceneDir = os.path.join(landsatDataBase,'albedo',scene)
@@ -257,7 +257,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
         a = Landsat(fn,LCpath)
         a.getAlbedo()
 #    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'ALBEDO')
-    updateLandsatProductsDB(landsatCacheDir,'ALBEDO',sceneDir)
+        updateLandsatProductsDB(landsatCacheDir,'ALBEDO',outFN)
 
     
 #    sceneDir = os.path.join(landsatDataBase,'LC',scene)
@@ -269,7 +269,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
         a = Landsat(fn,LCpath)
         a.getLC(landcover)
 #    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'LC')
-    updateLandsatProductsDB(landsatCacheDir,'LC',sceneDir)
+        updateLandsatProductsDB(landsatCacheDir,'LC',outFN)
 
 def main():    
     # Get time and location from user
