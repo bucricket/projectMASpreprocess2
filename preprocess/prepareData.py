@@ -238,7 +238,7 @@ def prepare_data(fn,session,isUSA,LCpath,insolDataset):
         a = MET(fn,session)
 #        a.getInsolation()
         if insolDataset =='GSIP':
-            a.getGSIP()
+            a.getGSIP('met10')
         else:
             a.getCERESinsol()
 #    processlai.updateLandsatProductsDB(output_df,outFN,landsatCacheDir,'INSOL1')
