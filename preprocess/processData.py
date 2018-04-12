@@ -546,7 +546,7 @@ class MET:
             warp(optionList)
             shutil.rmtree(dailyPath)
             
-    def getGSIP(self,platform):
+    def getGSIP(self):
         doy = (self.d-datetime(self.year-1,12,31)).days
         date = '%d%03d' % (self.year,doy)
         
@@ -610,7 +610,7 @@ class MET:
         
         #==============GSIP hourly insolation==================================
 #        gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
-        gsip_path = os.path.join(self.gsip_path,'*gsipL2_%s*_%s_%02d30.nc.gz' % (platform,date,self.hr))
+        gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10*_%s_%02d30.nc.gz' % (date,self.hr))
         print("HR:%d" % self.hr )
         try:
             gsip_fn = glob.glob(gsip_path)[0]    
