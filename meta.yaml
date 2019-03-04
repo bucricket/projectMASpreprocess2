@@ -1,0 +1,70 @@
+package:
+  name: projectmaspreprocess
+  version: 0.3.0
+
+source:
+  git_url: https://github.com/bucricket/projectMASpreprocess2.git
+  git_tag: version_0.3.0
+
+  
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+build:
+  number: 0
+  script: 
+
+  entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - landsat-util = landsat-util:main
+    #
+    # Would create an entry point called landsat-util that calls landsat-util.main()
+
+    - preprocess=preprocess.prepareData:main
+    
+requirements:
+  build:
+    - python
+    - setuptools
+    
+  run:
+    - python
+    - keyring >=9.3.1
+    - keyrings.alt >=1.2
+    - numpy
+    - sqlite
+    - gdal
+    - pycurl
+    - pandas
+    - python-wget
+    - projectmaslst
+    - projectmaslai
+    - pygrib
+
+
+test:
+  # Python imports
+  imports:
+    - preprocess
+
+  # commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+
+  requires:
+
+    # Put any additional test requirements here.  For example
+    # - nose
+
+about:
+  home: https://github.com/bucricket/projectMASpreprocess2.git
+  license: CCO
+  summary: 'A tool to disaggregate ALEXI ET'
+  license_family: BSD
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
