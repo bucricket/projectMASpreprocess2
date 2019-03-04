@@ -40,7 +40,7 @@ requirements:
     - pycurl
     - pandas
     - python-wget
-    - projectmaslst
+    - projectmaslst >=0.4.1
     - projectmaslai
     - pygrib
 
