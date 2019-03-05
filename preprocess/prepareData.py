@@ -43,6 +43,8 @@ def moveFiles(top_path,dst_path,ext):
                      shutil.copy(srccpy,dstcpy)
 
 def searchLandsatSceneID(sceneID,db_path,sat):
+    columns = ['acquisitionDate', 'acquisitionDate','upperLeftCornerLatitude', 'upperLeftCornerLongitude',
+               'lowerRightCornerLatitude' , 'lowerRightCornerLongitude', 'cloudCover']
     if sat==7:
         metadataUrl = 'https://landsat.usgs.gov/landsat/metadata_service/bulk_metadata_files/LANDSAT_ETM_C1.csv'
         db_name = os.path.join(db_path,'LANDSAT_ETM_C1.db') 
@@ -55,7 +57,7 @@ def searchLandsatSceneID(sceneID,db_path,sat):
         if not os.path.exists(fn):
             wget.download(metadataUrl,out=fn)
         conn = sqlite3.connect( db_name )
-        orig_df= pd.read_csv(fn)
+        orig_df= pd.read_csv(fn, usecols=columns)
         orig_df['sr'] = pd.Series(np.tile('N',len(orig_df)))
         orig_df['bt'] = pd.Series(np.tile('N',len(orig_df)))
         orig_df['local_file_path'] = ''
