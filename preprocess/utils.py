@@ -36,7 +36,6 @@ def folders(base):
     landsatLC = os.path.join(landsatDataBase,'LC')
     if not os.path.exists(landsatLC):
         os.makedirs(landsatLC)
-    base = os.path.abspath(os.path.join(base,os.pardir))
     satCache = os.path.join(base,'SATELLITE_DATA')
     if not os.path.exists(satCache):
         os.makedirs(satCache)
