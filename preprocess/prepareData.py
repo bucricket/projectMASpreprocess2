@@ -22,11 +22,13 @@ import pandas as pd
 import sqlite3
 from os import walk
 import shutil
+import datetime
+import glob
 
 # ===set golbal paths===========================================================
 base = os.getcwd()
-cacheDir = os.path.abspath(os.path.join(base, os.pardir, "SATELLITE_DATA"))
-model_cache = os.path.abspath(os.path.join(base, os.pardir, "MODEL_DATA"))
+cacheDir = os.path.abspath(os.path.join(base, "SATELLITE_DATA"))
+model_cache = os.path.abspath(os.path.join(base, "MODEL_DATA"))
 Folders = folders(base)
 ALEXIbase = Folders['ALEXIbase']
 metBase = Folders['metBase']
@@ -170,7 +172,7 @@ def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     fn = os.path.join(cacheDir, metadataUrl.split(os.sep)[-1])
     # looking to see if metadata CSV is available and if its up to the date needed
     if os.path.exists(fn):
-        d = datetime.fromtimestamp(os.path.getmtime(fn))
+        d = datetime.datetime.fromtimestamp(os.path.getmtime(fn))
         if (end.year > d.year) and (end.month > d.month) and (end.day > d.day):
             wget.download(metadataUrl, out=fn)
             df = pd.read_csv(fn, usecols=columns)
@@ -395,8 +397,10 @@ def main():
     productIDs = find_not_processed(downloaded, landsatCacheDir)
 
     for productID in productIDs:
-        out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
-        fn = os.path.join(out_df.local_file_path[0], productID + "_MTL.txt")
+        sat_str = productID.split("_")[0][-1]
+        scene = productID.split("_")[2]
+        path = os.path.join(landsatCacheDir, 'L%s/%s/RAW_DATA/' % (sat_str, scene))
+        fn = os.path.join(path, productID + "_MTL.txt")
         print fn
         prepare_data(fn, session, isUSA, LC_dir, insolDataset)
 

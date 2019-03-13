@@ -43,6 +43,7 @@ requirements:
     - projectmaslst==0.4.1
     - projectmaslai==0.4.1
     - pygrib
+    - xarray
 
 
 test:

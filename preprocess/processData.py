@@ -85,6 +85,7 @@ class Landsat(object):
         self.lrLon = meta.CORNER_LR_LON_PRODUCT
         self.delx = meta.GRID_CELL_SIZE_REFLECTIVE
         self.dely = meta.GRID_CELL_SIZE_REFLECTIVE
+        self.ls = ls
 
     def getLC(self, classification):
         #        scene = self.scene
@@ -169,13 +170,11 @@ class Landsat(object):
                 print "no sr file for scenedID: %s, band: %d" % (sceneID, bands[i])
         albedotemp = (0.356 * data[0]) + (0.130 * data[1]) + (0.373 * data[2]) + (0.085 * data[3]) + (
                     0.072 * data[4]) - 0.0018
-        ls.clone(albedoPath, albedotemp)
+        self.ls.clone(albedoPath, albedotemp)
 
 
 class ALEXI:
     def __init__(self, filepath):
-        #        base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
-        #                                            os.pardir,os.pardir))
         base = os.getcwd()
         Folders = folders(base)
         self.ALEXIbase = Folders['ALEXIbase']
@@ -183,7 +182,6 @@ class ALEXI:
         self.modCache = Folders['modCache']
         meta = landsat_metadata(filepath)
         self.sceneID = meta.LANDSAT_SCENE_ID
-        #        self.productID = meta.LANDSAT_PRODUCT_ID
         self.productID = filepath.split(os.sep)[-1][:-8]
         self.scene = self.sceneID[3:9]
         if meta.SPACECRAFT_ID == 'LANDSAT_7':
@@ -217,12 +215,8 @@ class ALEXI:
         self.year = d.year
         self.inputET = os.path.join(self.modCache, 'ALEXI')
 
-    #        self.inputET = inputET
-
     def getALEXIdata(self, ALEXIgeodict, isUSA):
         # ALEXI input info
-        #        ALEXI_ulLon = ALEXIgeodict['ALEXI_ulLon']
-        #        ALEXI_ulLat = ALEXIgeodict['ALEXI_ulLat']
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         ETtemp = os.path.join(self.ALEXIbase, "temp")
         if not os.path.exists(ETtemp):
@@ -243,9 +237,6 @@ class ALEXI:
                 tile_num.append(tile)
 
             for i in xrange(len(tile_num)):
-                #                inUL = [ULlon[i],ULlat[i]]
-                #                ETdata = os.path.join(self.inputET,
-                #                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 ETdata = glob.glob(os.path.join(self.inputET,
                                                 'FINAL_EDAY_*%s_T%03d.tif' % (int(self.sceneID[9:16]), tile_num[i])))[0]
                 localETpath = os.path.join(ETtemp, ETdata.split(os.sep)[-1])
@@ -255,8 +246,6 @@ class ALEXI:
                         continue
                     else:
                         os.symlink(ETdata, os.path.join(ETtemp, localETpath))
-            #                convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
-            #                os.remove(os.path.join(ETtemp,localETpath))
             # mosaic dataset if needed
             outfile2 = os.path.join(self.ALEXIbase, 'tempMos.tif')
 
@@ -613,7 +602,7 @@ class MET:
             # ==============GSIP hourly insolation==================================
 
         #        gsip_path = os.path.join(self.gsip_path,'*gsipL2_met10_MSGFD_%s_%02d30.nc.gz' % (date,self.hr))
-        gsip_path = os.path.join(self.gsip_path, '*gsipL2_met10*_%s_%02d30.nc.gz' % (date, self.hr))
+        gsip_path = os.path.join(self.gsip_path, '*gsipL2*_%s_%02d30.nc.gz' % (date, self.hr))
         print("HR:%d" % self.hr)
         try:
             gsip_fn = glob.glob(gsip_path)[0]
