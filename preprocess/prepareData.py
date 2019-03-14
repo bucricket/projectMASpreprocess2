@@ -285,17 +285,17 @@ def prepare_data(fn, session, isUSA, LCpath, insolDataset):
         a.getCFSR()
 
     # ====prepare insolation====================================================
-    sceneDir = os.path.join(satscene_path, 'INSOL')
-    if not os.path.exists(sceneDir):
-        os.makedirs(sceneDir)
-    outFN = os.path.join(sceneDir, '%s_Insol1.tiff' % sceneID)
-    if not os.path.exists(outFN):
-        a = MET(fn, session)
-        #        a.getInsolation()
-        if insolDataset == 'GSIP':
-            a.getGSIP()
-        else:
-            a.getCERESinsol()
+    # sceneDir = os.path.join(satscene_path, 'INSOL')
+    # if not os.path.exists(sceneDir):
+    #     os.makedirs(sceneDir)
+    # outFN = os.path.join(sceneDir, '%s_Insol1.tiff' % sceneID)
+    # if not os.path.exists(outFN):
+    #     a = MET(fn, session)
+    #     #        a.getInsolation()
+    #     if insolDataset == 'GSIP':
+    #         a.getGSIP()
+    #     else:
+    #         a.getCERESinsol()
 
     # =====prepare biophysical parameters at overpass time======================
     sceneDir = os.path.join(satscene_path, 'ALBEDO')
