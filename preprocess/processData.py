@@ -118,17 +118,19 @@ class Landsat(object):
                 for j in xrange(len(latNames)):
                     if latNames[j] >= 0:
                         hemisphere = 'N'
+                        lats = abs(latNames[j])
                     else:
                         hemisphere = 'S'
+                        lats = abs(latNames[j]) - 5.
                     LCdataFolder = os.path.join(self.inputLC,
-                                                '%s%d_%d_2010LC030' % (hemisphere, utmzone[i], abs(latNames[j])))
+                                                '%s%d_%d_2010LC030' % (hemisphere, utmzone[i], lats))
                     if not os.path.exists(LCdataFolder):
                         zipFN = os.path.join("%s.zip" % LCdataFolder)
                         zip_ref = zipfile.ZipFile(zipFN, 'r')
                         zip_ref.extractall(self.inputLC)
                         zip_ref.close()
                     LCdata = os.path.join(LCdataFolder,
-                                          '%s%d_%d_2010lc030.tif' % (hemisphere.lower(), utmZone[i], abs(latNames[j])))
+                                          '%s%d_%d_2010lc030.tif' % (hemisphere.lower(), utmZone[i], lats))
                     inputLCdata = os.path.join(LCtemp, LCdata.split(os.sep)[-1])
                     if not os.path.exists(inputLCdata):
                         os.symlink(LCdata, inputLCdata)
