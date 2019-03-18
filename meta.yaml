@@ -44,6 +44,7 @@ requirements:
     - projectmaslai==0.4.1
     - pygrib
     - xarray
+    - utm
 
 
 test:
