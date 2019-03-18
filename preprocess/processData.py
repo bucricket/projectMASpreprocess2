@@ -237,8 +237,10 @@ class ALEXI:
                 tile_num.append(tile)
 
             for i in xrange(len(tile_num)):
-                ETdata = glob.glob(os.path.join(self.inputET,
-                                                'FINAL_EDAY_*%s_T%03d.tif' % (int(self.sceneID[9:16]), tile_num[i])))[0]
+                search_path = os.path.join(self.inputET,
+                                                'FINAL_EDAY_*%s_T%03d.tif' % (int(self.sceneID[9:16]), tile_num[i]))
+                print(search_path)
+                ETdata = glob.glob()[0]
                 localETpath = os.path.join(ETtemp, ETdata.split(os.sep)[-1])
                 if not os.path.exists(os.path.join(ETtemp, localETpath)):
                     if not os.path.exists(ETdata):

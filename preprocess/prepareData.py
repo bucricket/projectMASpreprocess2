@@ -294,8 +294,11 @@ def prepare_data(fn, session, isUSA, LCpath, insolDataset):
         #        a.getInsolation()
         if insolDataset == 'GSIP':
             a.getGSIP()
-        else:
+        elif insolDataset == 'CERES':
             a.getCERESinsol()
+        else:
+            print("Using MERRA for Insolation")
+            a.getInsolation()
 
     # =====prepare biophysical parameters at overpass time======================
     sceneDir = os.path.join(satscene_path, 'ALBEDO')
@@ -329,7 +332,7 @@ def main():
     parser.add_argument("insolDataset", type=str, help="insolation dataset: CERES or GSIP")
     dst_path = os.path.join(model_cache, "ALEXI")
     parser.add_argument("--ET_dir", type=str, default=dst_path, help="ALEXI ET top directory")
-    dst_path = os.path.join(cacheDir, "GSIP")
+    dst_path = os.path.join(cacheDir, "MERRA")
     parser.add_argument("--Insol_dir", type=str, default=dst_path, help="Insolation top directory")
     parser.add_argument('-s', '--sat', nargs='?', type=int, default=8,
                         help='which landsat to search or download, i.e. Landsat 8 = 8')
@@ -357,12 +360,14 @@ def main():
         if not os.path.exists(dst_path):
             os.makedirs(dst_path)
         moveFiles(Insol_dir, dst_path, ext)
-    else:
+    elif insolDataset == 'CERES':
         ext = ".nc"
         dst_path = os.path.join(cacheDir, "CERES")
         if not os.path.exists(dst_path):
             os.makedirs(dst_path)
         moveFiles(Insol_dir, dst_path, ext)
+    else:
+        ext = ".tif"
 
     # =====earthData credentials==============================================
     earth_user = str(getpass.getpass(prompt="earth login username:"))
