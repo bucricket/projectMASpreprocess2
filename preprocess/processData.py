@@ -14,7 +14,7 @@ import utm
 import shutil
 from .utils import writeArray2Tiff, warp, folders
 from .utils import getHTTPdata
-from osgeo import gdal
+from osgeo import gdal, osr
 from osgeo.gdalconst import GA_ReadOnly
 from pydap.client import open_url
 from pydap.cas import urs
@@ -26,6 +26,7 @@ import glob
 import gzip
 import sys
 import xarray as xr
+import tempfile
 
 
 def tile2latlon(tile):
@@ -87,6 +88,37 @@ class Landsat(object):
         self.dely = meta.GRID_CELL_SIZE_REFLECTIVE
         self.ls = ls
 
+    def resampleLC(self, LC_fn, corners):
+        srs = osr.SpatialReference()
+        ds = gdal.Open(LC_fn)
+        wkt_text = ds.GetProjection()
+        srs.ImportFromWkt(wkt_text)
+        inProj4 = srs.ExportToProj4()
+        proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        uly = corners[0]
+        ulx = corners[1]
+        lry = corners[2]
+        lrx = corners[3]
+        ds = None
+        # number of 30-m pixels per 1 deg
+        # ========get ID data from something like albedo============================
+        temp_name = next(tempfile._get_candidate_names())
+        LCtempfn = os.path.join(os.getcwd(), 'LC%s.tif' % temp_name)
+        optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', '%s' % proj4, \
+                      '-te', '%f' % ulx, '%f' % lry, '%f' % lrx, '%f' % uly,
+                      '-multi', '-of', 'GTiff', '%s' % LC_fn, '%s' % LCtempfn]
+        warp(optionList)
+
+        ds = gdal.Open(LCtempfn)
+        band = ds.GetRasterBand(1)
+        LCarr = np.array(band.ReadAsArray(), dtype='uint32')
+        nrow = int(LCarr.shape[0])
+        ncol = int(LCarr.shape[1])
+        ds = None
+        os.remove(LCtempfn)
+
+        return LCarr
+
     def getLC(self, classification):
         #        scene = self.scene
         sceneID = self.sceneID
@@ -134,11 +166,15 @@ class Landsat(object):
                     inputLCdata = os.path.join(LCtemp, LCdata.split(os.sep)[-1])
                     if not os.path.exists(inputLCdata):
                         os.symlink(LCdata, inputLCdata)
-
+                # mosaic like UTM and convert to EPSG: 4326
+                outfile = os.path.join(LCtemp, 'tempMos_UTM%d.tif' % utmzone[i])
+                subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep), shell=True)
+                subprocess.check_output('gdalwarp - of GTiff - t_srs EPSG:4326. / %s.vrt. / %s%s.tif'
+                                        % (outfile[:-4], LCtemp, os.sep), shell=True)
             # mosaic dataset if needed
             outfile = os.path.join(LCtemp, 'tempMos.tif')
 
-            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt -allow_projection_difference %s%s*.tif' % (outfile[:-4], LCtemp, os.sep),
+            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*UTM*.tif' % (outfile[:-4], LCtemp, os.sep),
                                     shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4], "%s" % outfile])
 
