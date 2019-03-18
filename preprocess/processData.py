@@ -138,7 +138,7 @@ class Landsat(object):
             # mosaic dataset if needed
             outfile = os.path.join(LCtemp, 'tempMos.tif')
 
-            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep),
+            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt -allow_projection_difference %s%s*.tif' % (outfile[:-4], LCtemp, os.sep),
                                     shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4], "%s" % outfile])
 
