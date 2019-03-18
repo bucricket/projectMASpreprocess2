@@ -162,7 +162,7 @@ def updateLandsatProductsDB(cacheDir, product, fn):
 def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
                'lowerRightCornerLatitude', 'lowerRightCornerLongitude', 'cloudCover', 'sensor', 'LANDSAT_PRODUCT_ID']
-    end = datetime.strptime(end_date, '%Y-%m-%d')
+    end = datetime.datetime.strptime(end_date, '%Y-%m-%d')
     # this is a landsat-util work around when it fails
     if sat == 7:
         metadataUrl = 'https://landsat.usgs.gov/landsat/metadata_service/bulk_metadata_files/LANDSAT_ETM_C1.csv'
