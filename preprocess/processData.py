@@ -169,7 +169,7 @@ class Landsat(object):
                 # mosaic like UTM and convert to EPSG: 4326
                 outfile = os.path.join(LCtemp, 'tempMos_UTM%d.tif' % utmzone[i])
                 subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep), shell=True)
-                subprocess.check_output('gdalwarp -of GTiff -t_srs EPSG:4326 %s.vrt %s.tif'
+                subprocess.check_output('gdalwarp -overwrite -of GTiff -t_srs EPSG:4326 %s.vrt %s'
                                         % (outfile[:-4], outfile), shell=True)
             # mosaic dataset if needed
             outfile = os.path.join(LCtemp, 'tempMos.tif')
