@@ -412,7 +412,8 @@ def main():
     # ===process Landsat LST====================================================
     print("processing LST...")
     #    processlst.get_lst(earth_user,earth_pass)
-    processlst.get_lst(loc, start_date, end_date, earth_user, earth_pass, cloud, sat, cacheDir)
+    atmos_corr = 'n' # TURN BACK TO YES LATER
+    processlst.get_lst(earth_user, earth_pass, atmos_corr)
 
 
 if __name__ == "__main__":
