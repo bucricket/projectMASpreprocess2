@@ -186,7 +186,7 @@ class Landsat(object):
         outfile2 = os.path.join(self.lc_path, '%s%s' % (sceneID, '_LC.tiff'))
 
         optionList = ['-overwrite', '-te_srs', 'EPSG:4326', '-t_srs', '%s' % self.proj4, \
-                      '-te', '%f' % self.ulx, '%f' % self.lry, '%f' % self.lrx, '%f' % self.uly, \
+                      '-te', '%f' % self.ulLon, '%f' % self.lrLat, '%f' % self.lrLon, '%f' % self.ulLat, \
                       '-ts', '%f' % self.ncol, '%f' % self.nrow, '-multi', '-of', 'GTiff', '%s' % outfile,
                       '%s' % outfile2]
         warp(optionList)
