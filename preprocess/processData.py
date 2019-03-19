@@ -185,10 +185,8 @@ class Landsat(object):
 
         outfile2 = os.path.join(self.lc_path, '%s%s' % (sceneID, '_LC.tiff'))
 
-        optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4, '-t_srs', '%s' % self.proj4, \
-                      '-te', '%f' % self.ulx, '%f' % self.lry, '%f' % self.lrx, '%f' % self.uly, \
-                      '-ts', '%f' % self.ncol, '%f' % self.nrow, '-multi', '-of', 'GTiff', '%s' % outfile,
-                      '%s' % outfile2]
+        optionList = ['-overwrite', '-te', '%f' % self.ulx, '%f' % self.lry, '%f' % self.lrx, '%f' % self.uly, \
+                      '-ts', '%f' % self.ncol, '%f' % self.nrow, '-multi', '-of', 'GTiff', '%s' % outfile, '%s' % outfile2]
         warp(optionList)
 
     def getAlbedo(self):
