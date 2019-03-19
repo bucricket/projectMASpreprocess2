@@ -170,7 +170,7 @@ class Landsat(object):
                     outfile = os.path.join(LCtemp, 'tempMos_UTM%d.tif' % utmzone[i])
                     inputLCdata_geo = inputLCdata[:-4] + "_geo.tif"
                     # subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep), shell=True)
-                    subprocess.check_output('gdalwarp -overwrite -of GTiff -t_srs EPSG:4326 %s %s' % inputLCdata, inputLCdata_geo, shell=True)
+                    subprocess.check_output('gdalwarp -overwrite -of GTiff -t_srs EPSG:4326 %s %s' % (inputLCdata, inputLCdata_geo), shell=True)
             # mosaic dataset if needed
             outfile = os.path.join(LCtemp, 'tempMos.tif')
 
