@@ -166,15 +166,16 @@ class Landsat(object):
                     inputLCdata = os.path.join(LCtemp, LCdata.split(os.sep)[-1])
                     if not os.path.exists(inputLCdata):
                         os.symlink(LCdata, inputLCdata)
-                # mosaic like UTM and convert to EPSG: 4326
-                outfile = os.path.join(LCtemp, 'tempMos_UTM%d.tif' % utmzone[i])
-                subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep), shell=True)
-                subprocess.check_output('gdalwarp -overwrite -of GTiff -t_srs EPSG:4326 %s.vrt %s'
-                                        % (outfile[:-4], outfile), shell=True)
+                    # convert to EPSG: 4326
+                    outfile = os.path.join(LCtemp, 'tempMos_UTM%d.tif' % utmzone[i])
+                    inputLCdata_geo = inputLCdata[:-4] + "_geo.tif"
+                    # subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp, os.sep), shell=True)
+                    subprocess.check_output('gdalwarp -overwrite -of GTiff -t_srs EPSG:4326 %s %s'
+                                            % inputLCdata, inputLCdata_geo, shell=True)
             # mosaic dataset if needed
             outfile = os.path.join(LCtemp, 'tempMos.tif')
 
-            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s%s*UTM*.tif' % (outfile[:-4], LCtemp, os.sep),
+            subprocess.check_output('gdalbuildvrt -srcnodata 0 %s.vrt %s\*_geo.tif' % (outfile[:-4], LCtemp),
                                     shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4], "%s" % outfile])
 
